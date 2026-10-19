@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Suivi & devis</title>
+<meta name="theme-color" content="#0a1330" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { bg:'#0a1330', panel:'#101b3f', line:'#23315c', ink:'#eef2ff', dim:'#94a3c4', emerald:'#10b981' },
+    fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], mono:['JetBrains Mono','monospace'] }
+  } } }
+</script>
+<style>
+  :root{ --accent:#f5a524; }
+  body{ background:#0a1330; color:#eef2ff; }
+  .inp{ width:100%; background:transparent; border:1px solid #23315c; border-radius:6px; padding:.6rem .75rem; font-size:.9rem; color:#eef2ff; }
+  .inp:focus{ outline:none; border-color:var(--accent); }
+  .inp::placeholder{ color:#94a3c4; }
+  .lbl{ display:block; font-size:.75rem; color:#94a3c4; margin-bottom:.3rem; }
+  .btn{ background:var(--accent); color:#0a1330; font-weight:600; border-radius:6px; padding:.65rem 1.2rem; font-size:.9rem; }
+  .btn:disabled{ opacity:.5; }
+  .card{ background:#101b3f; border:1px solid #23315c; border-radius:12px; }
+  .accent{ color:var(--accent); }
+</style>
+</head>
+<body class="antialiased font-sans min-h-screen">
+<header class="border-b border-line">
+  <div class="max-w-3xl mx-auto px-5 h-16 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div id="logo" class="w-10 h-10 rounded-md overflow-hidden flex items-center justify-center font-semibold shrink-0" style="background:var(--accent);color:#0a1330"></div>
+      <div class="min-w-0"><p id="cname" class="font-semibold truncate">…</p><p id="ccity" class="text-xs text-dim truncate"></p></div>
+    </div>
+    <button id="lang" class="text-xs font-mono border border-line rounded-md px-2.5 py-1.5 text-dim">FR</button>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-5 py-8 space-y-6">
+  <p id="err" class="hidden card p-5 text-sm text-dim"></p>
+
+  <section id="track" class="card p-5">
+    <h1 class="text-lg font-semibold" data-i="track.title"></h1>
+    <form id="f-track" class="mt-4 flex gap-2">
+      <input name="code" required maxlength="12" class="inp font-mono uppercase" data-ph="track.ph" />
+      <button class="btn shrink-0" data-i="track.btn"></button>
+    </form>
+    <div id="track-result" class="mt-5"></div>
+  </section>
+
+  <section id="quote" class="card p-5">
+    <h2 class="text-lg font-semibold" data-i="q.title"></h2>
+    <p class="text-sm text-dim mt-1" data-i="q.sub"></p>
+    <form id="f-quote" class="mt-4 grid grid-cols-2 gap-3">
+      <div><label class="lbl" data-i="q.depart"></label><input name="depart" required maxlength="120" class="inp" /></div>
+      <div><label class="lbl" data-i="q.arrivee"></label><input name="arrivee" required maxlength="120" class="inp" /></div>
+      <div><label class="lbl" data-i="q.poids"></label><input name="poids" required maxlength="20" inputmode="decimal" class="inp" /></div>
+      <div><label class="lbl" data-i="q.marchandise"></label><input name="marchandise" required maxlength="120" class="inp" /></div>
+      <div><label class="lbl" data-i="q.contact"></label><input name="contact" type="email" required maxlength="100" class="inp" /></div>
+      <div><label class="lbl" data-i="q.phone"></label><input name="phone" maxlength="30" class="inp" /></div>
+      <div class="col-span-2"><label class="lbl" data-i="q.message"></label><textarea name="message" rows="3" maxlength="1000" class="inp"></textarea></div>
+      <button class="btn col-span-2" data-i="q.send"></button>
+      <p id="q-ok" class="hidden col-span-2 text-sm text-emerald" data-i="q.ok"></p>
+    </form>
+  </section>
+
+  <section id="contact" class="text-sm text-dim"></section>
+</main>
+<footer class="max-w-3xl mx-auto px-5 pb-10 text-xs text-dim"><a href="index.html" class="hover:text-ink" data-i="powered"></a></footer>
+
+<script>
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME.firebaseapp.com",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME.appspot.com",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+
+const I18N = {
+  fr: {
+    "track.title":"Suivre ma livraison","track.ph":"Code de suivi","track.btn":"Suivre","track.notFound":"Code introuvable. Vérifiez le code reçu de votre transporteur.","track.status":"Statut","track.eta":"Arrivée estimée","track.updated":"Mise à jour","track.pos":"Dernière position connue","track.noPos":"Position pas encore disponible",
+    "st.planned":"Planifiée","st.en_route":"En route","st.delivered":"Livrée",
+    "q.title":"Demander un devis","q.sub":"Décrivez votre transport, nous vous répondons rapidement.","q.depart":"Lieu de chargement","q.arrivee":"Lieu de livraison","q.poids":"Poids (t)","q.marchandise":"Marchandise","q.contact":"Votre email","q.phone":"Téléphone (facultatif)","q.message":"Précisions (dates, volume…)","q.send":"Envoyer la demande","q.ok":"Demande envoyée. Merci !","q.err":"Envoi impossible, réessayez.",
+    "err.noCompany":"Page introuvable. Vérifiez le lien reçu de votre transporteur.","contact":"Contact","powered":"Propulsé par Bouadigital"
+  },
+  es: {
+    "track.title":"Seguir mi envío","track.ph":"Código de seguimiento","track.btn":"Seguir","track.notFound":"Código no encontrado. Revisa el código que te envió tu transportista.","track.status":"Estado","track.eta":"Llegada estimada","track.updated":"Actualizado","track.pos":"Última posición conocida","track.noPos":"Posición aún no disponible",
+    "st.planned":"Planificado","st.en_route":"En ruta","st.delivered":"Entregado",
+    "q.title":"Pedir presupuesto","q.sub":"Describe tu transporte y te responderemos enseguida.","q.depart":"Lugar de carga","q.arrivee":"Lugar de entrega","q.poids":"Peso (t)","q.marchandise":"Mercancía","q.contact":"Tu email","q.phone":"Teléfono (opcional)","q.message":"Detalles (fechas, volumen…)","q.send":"Enviar solicitud","q.ok":"Solicitud enviada. ¡Gracias!","q.err":"No se pudo enviar, inténtalo de nuevo.",
+    "err.noCompany":"Página no encontrada. Revisa el enlace que te envió tu transportista.","contact":"Contacto","powered":"Con la tecnología de Bouadigital"
+  }
+};
+let LANG = (() => { try { const s = localStorage.getItem("bouadigital-lang"); if (s in I18N) return s; } catch(e){} return (navigator.language || "es").slice(0,2) === "fr" ? "fr" : "es"; })();
+const t = k => I18N[LANG][k] ?? I18N.fr[k] ?? k;
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const $ = s => document.querySelector(s);
+const fmtTime = ts => ts && ts.toDate ? ts.toDate().toLocaleString(LANG === "es" ? "es-ES" : "fr-FR", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }) : "—";
+
+function applyI18n() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i]").forEach(el => el.textContent = t(el.dataset.i));
+  document.querySelectorAll("[data-ph]").forEach(el => el.placeholder = t(el.dataset.ph));
+  $("#lang").textContent = LANG.toUpperCase();
+  if (lastTrack) renderTrack(lastTrack);
+}
+$("#lang").addEventListener("click", () => { LANG = LANG === "fr" ? "es" : "fr"; try { localStorage.setItem("bouadigital-lang", LANG); } catch(e){} applyI18n(); });
+
+const params = new URLSearchParams(location.search);
+const cid = params.get("c");
+let db, lastTrack = null, unTrack = null;
+
+function showError(msg) { const e = $("#err"); e.textContent = msg; e.classList.remove("hidden"); $("#track").classList.add("hidden"); $("#quote").classList.add("hidden"); }
+
+function renderTrack(d) {
+  const color = { planned:"text-dim", en_route:"accent", delivered:"text-emerald" }[d.status] || "";
+  const p = d.position;
+  const map = p ? `<iframe class="w-full h-56 rounded-md border border-line mt-2" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${p.lng - 0.1}%2C${p.lat - 0.06}%2C${p.lng + 0.1}%2C${p.lat + 0.06}&layer=mapnik&marker=${p.lat}%2C${p.lng}"></iframe>` : "";
+  $("#track-result").innerHTML = `
+    <div class="border-t border-line pt-5">
+      <p class="text-xs font-mono text-dim">${esc(d.ref)}</p>
+      <p class="text-lg font-semibold mt-1">${esc(d.depart)} → ${esc(d.arrivee)}</p>
+      <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        <div><p class="text-xs text-dim">${t("track.status")}</p><p class="${color} font-medium">${t("st." + d.status)}</p></div>
+        <div><p class="text-xs text-dim">${t("track.eta")}</p><p>${esc(d.status === "delivered" ? fmtTime(d.deliveredAt) : (d.eta || "—"))}</p></div>
+        <div><p class="text-xs text-dim">${t("track.updated")}</p><p>${fmtTime(d.updatedAt)}</p></div>
+      </div>
+      ${d.status !== "delivered" ? `<div class="mt-5"><p class="text-xs text-dim">${t("track.pos")}</p>${p ? `<p class="text-xs font-mono mt-1">${fmtTime(p.at)}</p>${map}` : `<p class="text-sm mt-1">${t("track.noPos")}</p>`}</div>` : ""}
+    </div>`;
+}
+
+function track(code) {
+  code = code.trim().toUpperCase();
+  if (unTrack) unTrack();
+  unTrack = db.doc("tracking/" + code).onSnapshot(s => {
+    if (!s.exists || s.data().companyId !== cid) { lastTrack = null; $("#track-result").innerHTML = `<p class="text-sm text-dim">${t("track.notFound")}</p>`; return; }
+    lastTrack = s.data(); renderTrack(lastTrack);
+  }, () => { $("#track-result").innerHTML = `<p class="text-sm text-dim">${t("track.notFound")}</p>`; });
+}
+
+async function init() {
+  applyI18n();
+  if (firebaseConfig.apiKey === "REPLACE_ME") return showError("Configuration Firebase manquante (voir README).");
+  if (!cid) return showError(t("err.noCompany"));
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+  const snap = await db.doc("publicProfiles/" + cid).get().catch(() => null);
+  if (!snap || !snap.exists) return showError(t("err.noCompany"));
+  const p = snap.data();
+  document.title = p.name;
+  document.documentElement.style.setProperty("--accent", p.color || "#f5a524");
+  $("#cname").textContent = p.name;
+  $("#ccity").textContent = p.city || "";
+  $("#logo").innerHTML = p.logo ? `<img src="${esc(p.logo)}" alt="" class="w-full h-full object-contain bg-white">` : esc((p.name || "?").slice(0,1).toUpperCase());
+  const contact = [p.phone && `<a href="tel:${esc(p.phone)}" class="hover:text-ink">${esc(p.phone)}</a>`, p.email && `<a href="mailto:${esc(p.email)}" class="hover:text-ink">${esc(p.email)}</a>`].filter(Boolean).join(" · ");
+  $("#contact").innerHTML = contact ? `<span class="text-ink">${t("contact")}</span> · ${contact}` : "";
+  const code = params.get("t");
+  if (code) { $("#f-track").code.value = code; track(code); }
+}
+
+$("#f-track").addEventListener("submit", e => { e.preventDefault(); if (db) track(e.target.code.value); });
+$("#f-quote").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, btn = f.querySelector("button"); btn.disabled = true;
+  try {
+    await db.collection("companies").doc(cid).collection("quotes").add({
+      depart: f.depart.value.trim(), arrivee: f.arrivee.value.trim(), poids: f.poids.value.trim(),
+      marchandise: f.marchandise.value.trim(), contact: f.contact.value.trim(), phone: f.phone.value.trim(),
+      message: f.message.value.trim(), status: "new", createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    f.querySelectorAll("input,textarea").forEach(i => i.value = "");
+    $("#q-ok").classList.remove("hidden");
+  } catch (err) { alert(t("q.err")); }
+  btn.disabled = false;
+});
+
+init();
+</script>
+</body>
+</html>
