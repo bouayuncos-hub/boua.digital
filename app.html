@@ -1,0 +1,1437 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Bouadigital — Application</title>
+<meta name="theme-color" content="#0a1330" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Bouadigital" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%231e3a8a'/%3E%3Cpath d='M120 180h180v140H120zM300 230l70 20v70h-70z' fill='%2360a5fa'/%3E%3Ccircle cx='180' cy='360' r='36' fill='%2310b981'/%3E%3Ccircle cx='340' cy='360' r='36' fill='%2310b981'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      colors: { bg:'#0a1330', panel:'#101b3f', line:'#23315c', brand:'#1e3a8a', amber:'#f5a524', emerald:'#10b981', ink:'#eef2ff', dim:'#94a3c4', danger:'#f87171' },
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], mono:['JetBrains Mono','monospace'] }
+    } }
+  }
+</script>
+<style>
+  body { background:#0a1330; color:#eef2ff; }
+  .focus-ring:focus-visible{ outline:2px solid #f5a524; outline-offset:3px; }
+  .inp{ width:100%; background:transparent; border:1px solid #23315c; border-radius:6px; padding:.55rem .75rem; font-size:.875rem; color:#eef2ff; }
+  .inp:focus{ outline:none; border-color:#f5a524; }
+  .inp::placeholder{ color:#94a3c4; }
+  select.inp option{ background:#101b3f; }
+  .lbl{ display:block; font-size:.75rem; color:#94a3c4; margin-bottom:.3rem; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:.4rem; font-size:.875rem; border-radius:6px; padding:.55rem 1rem; border:1px solid #23315c; transition:all .15s; }
+  .btn:hover{ border-color:#94a3c4; }
+  .btn-primary{ background:#f5a524; color:#0a1330; border-color:#f5a524; font-weight:600; }
+  .btn-primary:hover{ filter:brightness(1.08); border-color:#f5a524; }
+  .btn-danger{ color:#f87171; border-color:#5b2333; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; }
+  .card{ background:#101b3f; border:1px solid #23315c; border-radius:12px; }
+  .chip{ font-family:'JetBrains Mono',monospace; font-size:.7rem; padding:.15rem .5rem; border-radius:999px; border:1px solid #23315c; white-space:nowrap; }
+  .chip-planned{ color:#94a3c4; } .chip-en_route{ color:#f5a524; border-color:#6b4d16; } .chip-delivered{ color:#10b981; border-color:#14513f; }
+  .tabbar::-webkit-scrollbar{ display:none; }
+  #qr-full{ background:#fff; color:#0a1330; }
+  #qr-full svg{ width:100%; height:auto; display:block; }
+  .qr-box svg{ width:100%; height:auto; display:block; }
+  #sigpad{ touch-action:none; background:#fff; border-radius:8px; width:100%; height:200px; }
+  .fade{ animation:rise .25s ease both; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(5px);} to{ opacity:1; transform:none;} }
+</style>
+</head>
+<body class="antialiased font-sans min-h-screen">
+
+<!-- CHARGEMENT -->
+<div id="v-loading" class="min-h-screen flex items-center justify-center text-dim text-sm font-mono">Bouadigital…</div>
+
+<!-- CONNEXION / INSCRIPTION -->
+<div id="v-auth" class="hidden min-h-screen flex items-center justify-center px-5 py-10">
+  <div class="w-full max-w-sm">
+    <div class="flex items-center justify-between mb-8">
+      <a href="index.html" class="flex items-center gap-2">
+        <svg width="30" height="30" viewBox="0 0 512 512"><rect width="512" height="512" rx="128" fill="#1e3a8a"/><path d="M120 180h180v140H120zM300 230l70 20v70h-70z" fill="#60a5fa"/><circle cx="180" cy="360" r="36" fill="#10b981"/><circle cx="340" cy="360" r="36" fill="#10b981"/></svg>
+        <span class="font-semibold text-lg">Bouadigital</span>
+      </a>
+      <button data-act="lang" class="text-xs font-mono border border-line rounded-md px-2.5 py-1.5 text-dim lang-label">FR</button>
+    </div>
+    <div class="card p-6">
+      <div class="flex gap-2 border-b border-line mb-5">
+        <button data-act="authTab" data-tab="login" class="auth-tab px-3 py-2 text-sm border-b-2" data-i18n="auth.login"></button>
+        <button data-act="authTab" data-tab="signup" class="auth-tab px-3 py-2 text-sm border-b-2" data-i18n="auth.signup"></button>
+      </div>
+      <form data-form="login" id="f-login" class="space-y-3">
+        <div><label class="lbl" data-i18n="auth.email"></label><input name="email" type="email" required class="inp" autocomplete="email" /></div>
+        <div><label class="lbl" data-i18n="auth.password"></label><input name="password" type="password" required class="inp" autocomplete="current-password" /></div>
+        <button class="btn btn-primary w-full" data-i18n="auth.submitLogin"></button>
+        <button type="button" data-act="forgot" class="text-xs text-dim hover:text-ink" data-i18n="auth.forgot"></button>
+      </form>
+      <form data-form="signup" id="f-signup" class="hidden space-y-3">
+        <div><label class="lbl" data-i18n="auth.name"></label><input name="name" required maxlength="80" class="inp" autocomplete="name" /></div>
+        <div><label class="lbl" data-i18n="auth.email"></label><input name="email" type="email" required class="inp" autocomplete="email" /></div>
+        <div><label class="lbl" data-i18n="auth.password"></label><input name="password" type="password" required minlength="6" class="inp" autocomplete="new-password" /></div>
+        <label class="flex items-center gap-2 text-sm text-dim"><input type="checkbox" name="hasCode" data-act="toggleCode" /> <span data-i18n="auth.hasCode"></span></label>
+        <div id="code-wrap" class="hidden"><label class="lbl" data-i18n="auth.code"></label><input name="code" class="inp font-mono uppercase" maxlength="12" /></div>
+        <button class="btn btn-primary w-full" data-i18n="auth.submitSignup"></button>
+        <p class="text-[11px] text-dim" data-i18n="auth.terms"></p>
+      </form>
+      <p id="auth-error" class="hidden mt-3 text-xs text-danger"></p>
+    </div>
+  </div>
+</div>
+
+<!-- CRÉATION DE L'ENTREPRISE -->
+<div id="v-onboard" class="hidden min-h-screen flex items-center justify-center px-5 py-10">
+  <div class="w-full max-w-md card p-6">
+    <h1 class="text-xl font-semibold" data-i18n="onboard.title"></h1>
+    <p class="text-dim text-sm mt-1" data-i18n="onboard.sub"></p>
+    <form data-form="onboard" class="mt-5 space-y-3">
+      <div><label class="lbl" data-i18n="onboard.company"></label><input name="name" required maxlength="100" class="inp" /></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl" data-i18n="onboard.nif"></label><input name="nif" maxlength="20" class="inp" /></div>
+        <div><label class="lbl" data-i18n="onboard.city"></label><input name="city" maxlength="60" class="inp" /></div>
+      </div>
+      <div><label class="lbl" data-i18n="onboard.phone"></label><input name="phone" maxlength="30" class="inp" /></div>
+      <button class="btn btn-primary w-full" data-i18n="onboard.create"></button>
+    </form>
+    <p id="onboard-error" class="hidden mt-3 text-xs text-danger"></p>
+    <button data-act="logout" class="mt-4 text-xs text-dim hover:text-ink" data-i18n="nav.logout"></button>
+  </div>
+</div>
+
+<!-- APPLICATION -->
+<div id="v-app" class="hidden min-h-screen">
+  <header class="sticky top-0 z-30 backdrop-blur bg-bg/85 border-b border-line">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 min-w-0">
+        <div id="h-logo" class="w-8 h-8 rounded-md bg-brand shrink-0 overflow-hidden flex items-center justify-center text-xs font-semibold"></div>
+        <div class="min-w-0">
+          <p id="h-company" class="font-semibold text-sm truncate"></p>
+          <p id="h-user" class="text-[11px] text-dim truncate"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button data-act="lang" class="text-xs font-mono border border-line rounded-md px-2.5 py-1.5 text-dim lang-label">FR</button>
+        <button data-act="logout" class="text-xs border border-line rounded-md px-2.5 py-1.5 text-dim hover:text-ink" data-i18n="nav.logout"></button>
+      </div>
+    </div>
+    <nav id="tabbar" class="tabbar max-w-6xl mx-auto px-2 flex gap-1 overflow-x-auto"></nav>
+  </header>
+  <div id="banner" class="max-w-6xl mx-auto px-4"></div>
+  <main id="main" class="max-w-6xl mx-auto px-4 py-6 pb-24"></main>
+</div>
+
+<!-- MODALE -->
+<div id="modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-end md:items-center justify-center">
+  <div id="modal-body" class="bg-panel border border-line w-full md:max-w-2xl max-h-[92vh] overflow-y-auto rounded-t-2xl md:rounded-xl p-5 fade"></div>
+</div>
+
+<!-- DOCUMENTS : sélecteurs de fichiers (caméra / fichier) -->
+<input type="file" id="scan-camera" accept="image/*" capture="environment" class="hidden" />
+<input type="file" id="scan-file" accept="image/*,application/pdf" multiple class="hidden" />
+
+<!-- QR PLEIN ÉCRAN (contrôle routier) -->
+<div id="qr-full" class="hidden fixed inset-0 z-[70] flex flex-col items-center justify-center p-6 text-center" data-act="qrClose"></div>
+
+<!-- TOAST -->
+<div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] bg-ink text-bg text-sm px-4 py-2.5 rounded-md shadow-lg max-w-[90vw]"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION — à remplir (voir README.md)
+   ===================================================================== */
+const firebaseConfig = {
+  apiKey: "REPLACE_ME",
+  authDomain: "REPLACE_ME.firebaseapp.com",
+  projectId: "REPLACE_ME",
+  storageBucket: "REPLACE_ME.appspot.com",
+  messagingSenderId: "REPLACE_ME",
+  appId: "REPLACE_ME"
+};
+const STRIPE = {
+  priceSolo:   "price_REPLACE_SOLO",    // ID du prix Stripe « Solo »   (metadata produit : firebaseRole = solo)
+  priceFlotte: "price_REPLACE_FLOTTE",  // ID du prix Stripe « Flotte » (metadata produit : firebaseRole = flotte)
+  functionsRegion: "europe-west1"       // région choisie à l'installation de l'extension Stripe
+};
+const PLANS = {
+  trial:  { maxDrivers: 3,  price: 0 },
+  solo:   { maxDrivers: 0,  price: 49 },
+  flotte: { maxDrivers: 10, price: 129 }
+};
+const GRACE_DAYS = 7;          // jours de tolérance après la fin de période payée (identique aux règles)
+const GPS_INTERVAL_MS = 60000; // envoi de la position au maximum une fois par minute
+
+/* =====================================================================
+   TRADUCTIONS FR / ES
+   ===================================================================== */
+const I18N = {
+  fr: {
+    "c.save":"Enregistrer","c.cancel":"Annuler","c.delete":"Supprimer","c.close":"Fermer","c.edit":"Modifier","c.copy":"Copier","c.copied":"Copié","c.confirmDelete":"Supprimer définitivement ?","c.error":"Une erreur est survenue","c.print":"Imprimer / PDF","c.none":"—","c.inactive":"Abonnement inactif : action impossible","c.popup":"Autorisez les fenêtres pop-up pour imprimer",
+    "auth.login":"Connexion","auth.signup":"Créer un compte","auth.name":"Votre nom","auth.email":"Email","auth.password":"Mot de passe","auth.forgot":"Mot de passe oublié ?","auth.resetSent":"Email de réinitialisation envoyé","auth.hasCode":"J'ai un code chauffeur","auth.code":"Code d'invitation","auth.codeInvalid":"Code d'invitation invalide ou déjà utilisé","auth.submitLogin":"Se connecter","auth.submitSignup":"Commencer l'essai gratuit","auth.terms":"En créant un compte, vous acceptez les conditions d'utilisation et la politique de confidentialité de Bouadigital.","auth.errAuth":"Identifiants incorrects","auth.errExists":"Un compte existe déjà avec cet email","auth.errWeak":"Mot de passe trop court (6 caractères minimum)","auth.enterEmail":"Saisissez votre email ci-dessus",
+    "onboard.title":"Votre entreprise","onboard.sub":"Ces informations apparaîtront sur vos CMR, factures et votre page client. Modifiables à tout moment.","onboard.company":"Nom de l'entreprise ou nom commercial","onboard.nif":"NIF / CIF","onboard.city":"Ville","onboard.phone":"Téléphone","onboard.create":"Créer mon espace (30 jours gratuits)",
+    "nav.dashboard":"Accueil","nav.missions":"Missions","nav.invoices":"Factures","nav.quotes":"Devis reçus","nav.fret":"Bourse de fret","nav.team":"Équipe","nav.settings":"Réglages","nav.billing":"Abonnement","nav.logout":"Déconnexion",
+    "ban.trial":"Essai gratuit : {n} jour(s) restant(s).","ban.choose":"Choisir une formule","ban.expiredAdmin":"Votre abonnement n'est plus actif. Vos données restent consultables, mais vous ne pouvez plus créer ni modifier.","ban.expiredDriver":"L'abonnement de votre entreprise n'est plus actif. Contactez votre responsable.","ban.paidOk":"Paiement reçu, merci ! L'activation peut prendre quelques secondes.",
+    "dash.hello":"Bonjour {n}","dash.inProgress":"En cours","dash.deliveredMonth":"Livrées ce mois","dash.revenueMonth":"CA du mois (HT)","dash.unpaid":"Impayés (TTC)","dash.next":"Prochaines missions","dash.newQuotes":"{n} nouvelle(s) demande(s) de devis","dash.start":"Pour commencer : créez votre première mission, puis envoyez le lien de suivi à votre client.",
+    "st.planned":"Planifiée","st.en_route":"En route","st.delivered":"Livrée",
+    "m.title":"Missions","m.new":"Nouvelle mission","m.edit":"Modifier la mission","m.all":"Toutes","m.empty":"Aucune mission pour l'instant.","m.ref":"Référence","m.date":"Date de chargement","m.depart":"Lieu de chargement","m.arrivee":"Lieu de livraison","m.shipper":"Expéditeur","m.shipperAddr":"Adresse expéditeur","m.consignee":"Destinataire","m.consigneeAddr":"Adresse destinataire","m.goods":"Marchandise","m.weight":"Poids (t)","m.client":"Client à facturer","m.clientEmail":"Email du client","m.clientNif":"NIF/CIF du client","m.price":"Prix HT (€)","m.driver":"Chauffeur","m.plate":"Immatriculation","m.notes":"Remarques","m.eta":"Arrivée estimée","m.etaPh":"ex. demain 14h","m.start":"Démarrer le trajet","m.deliver":"Marquer livrée","m.cmr":"CMR","m.trackLink":"Lien de suivi client","m.trackCopied":"Lien de suivi copié","m.gpsOn":"Partager ma position","m.gpsOff":"Arrêter le partage","m.gpsActive":"Position partagée — gardez l'application ouverte","m.gpsUnsupported":"Géolocalisation non disponible sur cet appareil","m.gpsDenied":"Autorisez la localisation pour partager la position","m.lastPos":"Dernière position","m.noPos":"Aucune position reçue","m.invoice":"Facture","m.createInvoice":"Créer la facture","m.signTitle":"Signature du destinataire","m.signName":"Nom du signataire","m.signClear":"Effacer","m.signConfirm":"Valider la livraison","m.signRequired":"Signature et nom requis","m.secRoute":"Trajet","m.secParties":"Expéditeur et destinataire","m.secBilling":"Facturation","m.me":"moi","m.saved":"Mission enregistrée","m.invoiceDone":"Facture {n} créée","m.noPrice":"Ajoutez un prix HT pour facturer",
+    "i.title":"Factures","i.empty":"Les factures se créent automatiquement quand une mission avec un prix est livrée.","i.number":"N°","i.client":"Client","i.date":"Date","i.ht":"HT","i.tva":"IVA","i.ttc":"TTC","i.paid":"Payée","i.unpaid":"À payer","i.markPaid":"Marquer payée","i.markUnpaid":"Marquer impayée",
+    "q.title":"Devis reçus","q.empty":"Les demandes envoyées depuis votre page client apparaîtront ici.","q.toMission":"Créer la mission","q.markDone":"Marquer traité","q.reply":"Répondre","q.new":"Nouveau","q.done":"Traité","q.publicLink":"Partagez votre page client pour recevoir des demandes :",
+    "f.title":"Bourse de fret","f.sub":"Offres publiées par les transporteurs Bouadigital. Contactez directement l'annonceur.","f.publish":"Publier une offre","f.from":"Départ","f.to":"Arrivée","f.date":"Date","f.weight":"Poids (t)","f.price":"Prix (€)","f.contact":"Contact (tél. ou email)","f.empty":"Aucune offre en cours.","f.mine":"Mon offre","f.searchPh":"Filtrer par ville…","f.published":"Offre publiée",
+    "t.title":"Équipe","t.members":"Membres","t.admin":"Responsable","t.driver":"Chauffeur","t.remove":"Retirer","t.invite":"Inviter un chauffeur","t.inviteHelp":"Le chauffeur crée son compte avec ce code (ou ouvre le lien). Chaque code ne sert qu'une fois.","t.pending":"Codes en attente","t.limit":"Votre formule permet {n} chauffeur(s).","t.soloLimit":"La formule Solo est prévue pour un seul utilisateur. Passez à Flotte pour inviter des chauffeurs.","t.limitReached":"Limite de chauffeurs atteinte pour votre formule","t.codeCreated":"Code créé",
+    "s.title":"Réglages","s.company":"Nom de l'entreprise","s.nif":"NIF / CIF","s.address":"Adresse","s.city":"Ville","s.phone":"Téléphone","s.email":"Email de contact","s.color":"Couleur principale","s.taxRate":"Taux d'IVA (%)","s.logo":"Logo","s.logoHelp":"PNG ou JPG, réduit automatiquement.","s.saved":"Réglages enregistrés","s.publicPage":"Votre page client","s.publicHelp":"Envoyez ce lien à vos clients : suivi de livraison et demande de devis.","s.account":"Mon compte","s.resetPwd":"Changer mon mot de passe (email)","s.logoRemove":"Retirer le logo",
+    "b.title":"Abonnement","b.trialUntil":"Essai gratuit jusqu'au {d}","b.activeUntil":"Formule {p} — renouvelée le {d}","b.expired":"Aucun abonnement actif","b.perMonth":"/ mois HT","b.subscribe":"Choisir","b.manage":"Gérer mon abonnement et mes factures","b.current":"Formule actuelle","b.redirecting":"Redirection vers le paiement…","b.notConfigured":"Paiement pas encore configuré (voir README).","b.soloF":"1 utilisateur · missions illimitées · CMR, GPS, factures, page client","b.flotteF":"Jusqu'à 10 chauffeurs · tout le contenu de Solo","b.secure":"Paiement sécurisé par Stripe. Résiliable à tout moment.",
+    "pr.invoice":"FACTURE","pr.billTo":"Facturé à","pr.desc":"Description","pr.base":"Base imposable","pr.total":"Total TTC","pr.date":"Date","pr.ref":"Réf. mission"
+  },
+  es: {
+    "c.save":"Guardar","c.cancel":"Cancelar","c.delete":"Eliminar","c.close":"Cerrar","c.edit":"Editar","c.copy":"Copiar","c.copied":"Copiado","c.confirmDelete":"¿Eliminar definitivamente?","c.error":"Se ha producido un error","c.print":"Imprimir / PDF","c.none":"—","c.inactive":"Suscripción inactiva: acción no disponible","c.popup":"Permite las ventanas emergentes para imprimir",
+    "auth.login":"Acceder","auth.signup":"Crear cuenta","auth.name":"Tu nombre","auth.email":"Email","auth.password":"Contraseña","auth.forgot":"¿Has olvidado la contraseña?","auth.resetSent":"Email de recuperación enviado","auth.hasCode":"Tengo un código de conductor","auth.code":"Código de invitación","auth.codeInvalid":"Código de invitación no válido o ya utilizado","auth.submitLogin":"Entrar","auth.submitSignup":"Empezar la prueba gratis","auth.terms":"Al crear una cuenta aceptas las condiciones de uso y la política de privacidad de Bouadigital.","auth.errAuth":"Credenciales incorrectas","auth.errExists":"Ya existe una cuenta con este email","auth.errWeak":"Contraseña demasiado corta (mínimo 6 caracteres)","auth.enterEmail":"Escribe tu email arriba",
+    "onboard.title":"Tu empresa","onboard.sub":"Estos datos aparecerán en tus CMR, facturas y en tu página de clientes. Puedes cambiarlos cuando quieras.","onboard.company":"Nombre de la empresa o nombre comercial","onboard.nif":"NIF / CIF","onboard.city":"Ciudad","onboard.phone":"Teléfono","onboard.create":"Crear mi espacio (30 días gratis)",
+    "nav.dashboard":"Inicio","nav.missions":"Servicios","nav.invoices":"Facturas","nav.quotes":"Presupuestos","nav.fret":"Bolsa de carga","nav.team":"Equipo","nav.settings":"Ajustes","nav.billing":"Suscripción","nav.logout":"Salir",
+    "ban.trial":"Prueba gratis: quedan {n} día(s).","ban.choose":"Elegir un plan","ban.expiredAdmin":"Tu suscripción ya no está activa. Puedes consultar tus datos, pero no crear ni modificar.","ban.expiredDriver":"La suscripción de tu empresa no está activa. Contacta con tu responsable.","ban.paidOk":"¡Pago recibido, gracias! La activación puede tardar unos segundos.",
+    "dash.hello":"Hola {n}","dash.inProgress":"En curso","dash.deliveredMonth":"Entregados este mes","dash.revenueMonth":"Facturación del mes","dash.unpaid":"Impagos (con IVA)","dash.next":"Próximos servicios","dash.newQuotes":"{n} solicitud(es) de presupuesto nueva(s)","dash.start":"Para empezar: crea tu primer servicio y envía el enlace de seguimiento a tu cliente.",
+    "st.planned":"Planificado","st.en_route":"En ruta","st.delivered":"Entregado",
+    "m.title":"Servicios","m.new":"Nuevo servicio","m.edit":"Editar servicio","m.all":"Todos","m.empty":"Todavía no hay servicios.","m.ref":"Referencia","m.date":"Fecha de carga","m.depart":"Lugar de carga","m.arrivee":"Lugar de entrega","m.shipper":"Remitente","m.shipperAddr":"Dirección remitente","m.consignee":"Destinatario","m.consigneeAddr":"Dirección destinatario","m.goods":"Mercancía","m.weight":"Peso (t)","m.client":"Cliente a facturar","m.clientEmail":"Email del cliente","m.clientNif":"NIF/CIF del cliente","m.price":"Precio sin IVA (€)","m.driver":"Conductor","m.plate":"Matrícula","m.notes":"Observaciones","m.eta":"Llegada estimada","m.etaPh":"p. ej. mañana 14h","m.start":"Iniciar trayecto","m.deliver":"Marcar entregado","m.cmr":"CMR","m.trackLink":"Enlace de seguimiento","m.trackCopied":"Enlace de seguimiento copiado","m.gpsOn":"Compartir mi posición","m.gpsOff":"Dejar de compartir","m.gpsActive":"Posición compartida — mantén la aplicación abierta","m.gpsUnsupported":"Geolocalización no disponible en este dispositivo","m.gpsDenied":"Permite la ubicación para compartir la posición","m.lastPos":"Última posición","m.noPos":"Sin posición recibida","m.invoice":"Factura","m.createInvoice":"Crear la factura","m.signTitle":"Firma del destinatario","m.signName":"Nombre del firmante","m.signClear":"Borrar","m.signConfirm":"Validar la entrega","m.signRequired":"Firma y nombre obligatorios","m.secRoute":"Trayecto","m.secParties":"Remitente y destinatario","m.secBilling":"Facturación","m.me":"yo","m.saved":"Servicio guardado","m.invoiceDone":"Factura {n} creada","m.noPrice":"Añade un precio para facturar",
+    "i.title":"Facturas","i.empty":"Las facturas se crean automáticamente al entregar un servicio con precio.","i.number":"N.º","i.client":"Cliente","i.date":"Fecha","i.ht":"Base","i.tva":"IVA","i.ttc":"Total","i.paid":"Pagada","i.unpaid":"Pendiente","i.markPaid":"Marcar pagada","i.markUnpaid":"Marcar pendiente",
+    "q.title":"Presupuestos","q.empty":"Las solicitudes enviadas desde tu página de clientes aparecerán aquí.","q.toMission":"Crear el servicio","q.markDone":"Marcar atendido","q.reply":"Responder","q.new":"Nuevo","q.done":"Atendido","q.publicLink":"Comparte tu página de clientes para recibir solicitudes:",
+    "f.title":"Bolsa de carga","f.sub":"Ofertas publicadas por transportistas Bouadigital. Contacta directamente con el anunciante.","f.publish":"Publicar una oferta","f.from":"Origen","f.to":"Destino","f.date":"Fecha","f.weight":"Peso (t)","f.price":"Precio (€)","f.contact":"Contacto (tel. o email)","f.empty":"No hay ofertas por ahora.","f.mine":"Mi oferta","f.searchPh":"Filtrar por ciudad…","f.published":"Oferta publicada",
+    "t.title":"Equipo","t.members":"Miembros","t.admin":"Responsable","t.driver":"Conductor","t.remove":"Quitar","t.invite":"Invitar a un conductor","t.inviteHelp":"El conductor crea su cuenta con este código (o abre el enlace). Cada código sirve una sola vez.","t.pending":"Códigos pendientes","t.limit":"Tu plan permite {n} conductor(es).","t.soloLimit":"El plan Solo es para un solo usuario. Cambia a Flota para invitar conductores.","t.limitReached":"Límite de conductores alcanzado para tu plan","t.codeCreated":"Código creado",
+    "s.title":"Ajustes","s.company":"Nombre de la empresa","s.nif":"NIF / CIF","s.address":"Dirección","s.city":"Ciudad","s.phone":"Teléfono","s.email":"Email de contacto","s.color":"Color principal","s.taxRate":"Tipo de IVA (%)","s.logo":"Logo","s.logoHelp":"PNG o JPG, se reduce automáticamente.","s.saved":"Ajustes guardados","s.publicPage":"Tu página de clientes","s.publicHelp":"Envía este enlace a tus clientes: seguimiento de entrega y solicitud de presupuesto.","s.account":"Mi cuenta","s.resetPwd":"Cambiar mi contraseña (email)","s.logoRemove":"Quitar el logo",
+    "b.title":"Suscripción","b.trialUntil":"Prueba gratis hasta el {d}","b.activeUntil":"Plan {p} — se renueva el {d}","b.expired":"Ninguna suscripción activa","b.perMonth":"/ mes + IVA","b.subscribe":"Elegir","b.manage":"Gestionar mi suscripción y mis facturas","b.current":"Plan actual","b.redirecting":"Redirigiendo al pago…","b.notConfigured":"Pago aún no configurado (ver README).","b.soloF":"1 usuario · servicios ilimitados · CMR, GPS, facturas, página cliente","b.flotteF":"Hasta 10 conductores · todo lo de Solo","b.secure":"Pago seguro con Stripe. Cancela cuando quieras.",
+    "pr.invoice":"FACTURA","pr.billTo":"Cliente","pr.desc":"Concepto","pr.base":"Base imponible","pr.total":"Total","pr.date":"Fecha","pr.ref":"Ref. servicio"
+  }
+};
+const LANGS = ["fr","es"];
+let LANG = (() => { try { const s = localStorage.getItem("bouadigital-lang"); if (LANGS.includes(s)) return s; } catch(e){} const b=(navigator.language||"fr").slice(0,2); return LANGS.includes(b)?b:"fr"; })();
+function t(k, vars) { let s = (I18N[LANG] && I18N[LANG][k]) ?? I18N.fr[k] ?? k; if (vars) for (const v in vars) s = s.replace("{"+v+"}", vars[v]); return s; }
+function applyStaticI18n() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll(".lang-label").forEach(el => el.textContent = LANG.toUpperCase());
+}
+
+/* =====================================================================
+   OUTILS
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const locale = () => LANG === "es" ? "es-ES" : "fr-FR";
+const money = n => new Intl.NumberFormat(locale(), { style:"currency", currency:"EUR" }).format(Number(n) || 0);
+const round2 = n => Math.round((Number(n) || 0) * 100) / 100;
+const todayStr = () => new Date().toISOString().slice(0,10);
+const monthStr = () => new Date().toISOString().slice(0,7);
+function fmtDay(v) {
+  if (!v) return t("c.none");
+  const d = typeof v === "string" ? new Date(v + "T12:00:00") : (v.toDate ? v.toDate() : new Date(v));
+  return d.toLocaleDateString(locale(), { day:"2-digit", month:"short", year:"numeric" });
+}
+function fmtTime(ts) { if (!ts) return t("c.none"); const d = ts.toDate ? ts.toDate() : new Date(ts); return d.toLocaleString(locale(), { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }); }
+function rand(n) { const a = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; const b = crypto.getRandomValues(new Uint8Array(n)); return Array.from(b, x => a[x % a.length]).join(""); }
+let toastTimer;
+function toast(msg) { const el = $("#toast"); el.textContent = msg; el.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.add("hidden"), 3200); }
+function show(view) { ["v-loading","v-auth","v-onboard","v-app"].forEach(id => $("#"+id).classList.toggle("hidden", id !== view)); }
+function openModal(html) { $("#modal-body").innerHTML = html; $("#modal").classList.remove("hidden"); }
+function closeModal() { $("#modal").classList.add("hidden"); $("#modal-body").innerHTML = ""; S.openMissionId = null; S.openDecaId = null; }
+function copy(text, msg) { (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast(msg || t("c.copied"))).catch(() => prompt("", text)); }
+function baseUrl() { return location.origin + location.pathname.replace(/[^/]*$/, ""); }
+function fail(err) { console.error(err); toast(t("c.error") + (err && err.code ? " (" + err.code + ")" : "")); }
+
+/* =====================================================================
+   FIREBASE
+   ===================================================================== */
+const configured = firebaseConfig.apiKey !== "REPLACE_ME";
+let auth, db, FV, TS, storage;
+if (configured) {
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.firestore();
+  db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+  storage = firebase.storage();
+  storage.setMaxUploadRetryTime(60 * 60 * 1000); // réessaie jusqu'à 1 h si le réseau coupe
+  FV = firebase.firestore.FieldValue;
+  TS = firebase.firestore.Timestamp;
+}
+
+/* =====================================================================
+   ÉTAT
+   ===================================================================== */
+const S = {
+  user: null, profile: null, company: null, cid: null,
+  missions: [], invoices: [], quotes: [], fret: [], members: [], invites: [], subs: [], docs: [],
+  tab: "dashboard", mFilter: "all", fretSearch: "", docSearch: "", openMissionId: null, openDecaId: null, scanMissionId: null,
+  unsubUser: null, unsubCompany: null, unsubs: [], dataCid: null, joining: false
+};
+const isAdmin = () => S.profile && S.profile.role === "admin";
+function isActive(c = S.company) {
+  if (!c) return false;
+  const now = Date.now();
+  if (c.trialEnds && c.trialEnds.toMillis() > now) return true;
+  return !!(c.paidUntil && c.paidUntil.toMillis() + GRACE_DAYS * 864e5 > now);
+}
+function guard() { if (isActive()) return true; toast(t("c.inactive")); return false; }
+function stopData() { S.unsubs.forEach(u => u()); S.unsubs = []; S.dataCid = null; }
+function stopAll() {
+  stopData(); stopGps();
+  if (S.unsubUser) S.unsubUser(); if (S.unsubCompany) S.unsubCompany();
+  S.unsubUser = S.unsubCompany = null;
+  Object.assign(S, { profile:null, company:null, cid:null, missions:[], invoices:[], quotes:[], fret:[], members:[], invites:[], subs:[], docs:[] });
+}
+
+/* =====================================================================
+   AUTHENTIFICATION
+   ===================================================================== */
+function authTab(tab) {
+  document.querySelectorAll(".auth-tab").forEach(b => {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle("border-amber", on); b.classList.toggle("text-ink", on);
+    b.classList.toggle("border-transparent", !on); b.classList.toggle("text-dim", !on);
+  });
+  $("#f-login").classList.toggle("hidden", tab !== "login");
+  $("#f-signup").classList.toggle("hidden", tab !== "signup");
+  $("#auth-error").classList.add("hidden");
+}
+function authError(err) {
+  const map = { "auth/email-already-in-use":"auth.errExists", "auth/weak-password":"auth.errWeak" };
+  const el = $("#auth-error");
+  el.textContent = err.i18n ? t(err.i18n) : t(map[err.code] || "auth.errAuth");
+  el.classList.remove("hidden");
+}
+
+const FORMS = {};
+FORMS.login = async f => {
+  try { await auth.signInWithEmailAndPassword(f.email.value.trim(), f.password.value); }
+  catch (e) { authError(e); }
+};
+FORMS.signup = async f => {
+  const code = f.hasCode.checked ? f.code.value.trim().toUpperCase() : "";
+  let invite = null;
+  try {
+    if (code) {
+      const snap = await db.doc("invites/" + code).get();
+      if (!snap.exists || snap.data().usedBy) return authError({ i18n: "auth.codeInvalid" });
+      invite = snap.data();
+      S.joining = true;
+    }
+    const cred = await auth.createUserWithEmailAndPassword(f.email.value.trim(), f.password.value);
+    const name = f.name.value.trim();
+    await cred.user.updateProfile({ displayName: name });
+    if (invite) {
+      const b = db.batch();
+      b.set(db.doc("users/" + cred.user.uid), { companyId: invite.companyId, role: "driver", name, email: cred.user.email, inviteCode: code, createdAt: FV.serverTimestamp() });
+      b.update(db.doc("invites/" + code), { usedBy: cred.user.uid });
+      await b.commit();
+    }
+  } catch (e) { S.joining = false; authError(e); }
+};
+FORMS.onboard = async f => {
+  const u = S.user, cref = db.collection("companies").doc();
+  const name = f.name.value.trim(), nif = f.nif.value.trim(), city = f.city.value.trim(), phone = f.phone.value.trim();
+  const b = db.batch();
+  b.set(cref, {
+    name, nif, city, phone, address: "", email: u.email, color: "#f5a524", logo: "", taxRate: 21,
+    ownerUid: u.uid, plan: "trial", invoiceSeq: 0,
+    trialEnds: TS.fromMillis(Date.now() + 30 * 864e5), createdAt: FV.serverTimestamp()
+  });
+  b.set(db.doc("users/" + u.uid), { companyId: cref.id, role: "admin", name: u.displayName || "", email: u.email, createdAt: FV.serverTimestamp() });
+  b.set(db.doc("publicProfiles/" + cref.id), { name, city, phone, email: u.email, color: "#f5a524", logo: "" });
+  try { await b.commit(); }
+  catch (e) { const el = $("#onboard-error"); el.textContent = t("c.error") + " (" + (e.code || "") + ")"; el.classList.remove("hidden"); console.error(e); }
+};
+
+function boot() {
+  applyStaticI18n();
+  if (!configured) {
+    show("v-auth"); authTab("login");
+    const el = $("#auth-error"); el.textContent = "Configuration Firebase manquante : remplissez firebaseConfig dans app.html (voir README)."; el.classList.remove("hidden");
+    return;
+  }
+  const params = new URLSearchParams(location.search);
+  if (params.get("invite")) {
+    authTab("signup"); const f = $("#f-signup");
+    f.hasCode.checked = true; $("#code-wrap").classList.remove("hidden"); f.code.value = params.get("invite");
+  } else authTab(params.get("signup") ? "signup" : "login");
+  if (params.get("paid")) setTimeout(() => toast(t("ban.paidOk")), 800);
+
+  auth.onAuthStateChanged(user => {
+    stopAll();
+    S.user = user;
+    if (!user) { show("v-auth"); return; }
+    show("v-loading");
+    S.unsubUser = db.doc("users/" + user.uid).onSnapshot(snap => {
+      if (!snap.exists) { if (S.joining) return; stopData(); S.profile = null; show("v-onboard"); return; }
+      S.joining = false;
+      S.profile = snap.data();
+      if (S.cid !== S.profile.companyId) listenCompany(S.profile.companyId);
+    }, err => { fail(err); show("v-onboard"); });
+  });
+}
+
+function listenCompany(cid) {
+  if (S.unsubCompany) S.unsubCompany();
+  stopData();
+  S.cid = cid;
+  S.unsubCompany = db.doc("companies/" + cid).onSnapshot(snap => {
+    if (!snap.exists) return;
+    S.company = snap.data();
+    if (S.dataCid !== cid) startData(cid);
+    show("v-app");
+    renderShell();
+    if (["dashboard","billing","team"].includes(S.tab)) render();
+  }, fail);
+}
+
+function startData(cid) {
+  S.dataCid = cid;
+  const base = db.collection("companies").doc(cid);
+  const on = (q, key, after) => S.unsubs.push(q.onSnapshot(s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (after) after(); refresh(key); }, err => console.warn(key, err.code)));
+  on(base.collection("missions").orderBy("createdAt", "desc").limit(500), "missions", () => { refreshMissionModal(); refreshDecaModal(); });
+  on(base.collection("docs").orderBy("createdAt", "desc").limit(1000), "docs");
+  on(db.collection("fret").orderBy("createdAt", "desc").limit(80), "fret");
+  if (isAdmin()) {
+    on(base.collection("invoices").orderBy("createdAt", "desc").limit(500), "invoices");
+    on(base.collection("quotes").orderBy("createdAt", "desc").limit(200), "quotes");
+    on(db.collection("users").where("companyId", "==", cid), "members");
+    on(db.collection("invites").where("companyId", "==", cid).where("usedBy", "==", null), "invites");
+    if (S.company.ownerUid === S.user.uid) {
+      on(db.collection("customers").doc(S.user.uid).collection("subscriptions").where("status", "in", ["active","trialing"]), "subs", syncSubscription);
+    }
+  }
+}
+
+/* Recopie l'abonnement Stripe actif sur l'entreprise (vérifié par les règles Firestore) */
+async function syncSubscription() {
+  const subs = S.subs.filter(s => s.current_period_end && ["solo","flotte"].includes(s.role));
+  if (!subs.length) { if (S.subs.length) console.warn("Abonnement sans metadata firebaseRole (solo / flotte) sur le produit Stripe."); return; }
+  subs.sort((a, b) => b.current_period_end.toMillis() - a.current_period_end.toMillis());
+  const s = subs[0], c = S.company;
+  if (c.subId === s.id && c.plan === s.role && c.paidUntil && c.paidUntil.toMillis() === s.current_period_end.toMillis()) return;
+  try { await db.doc("companies/" + S.cid).update({ plan: s.role, paidUntil: s.current_period_end, subId: s.id }); }
+  catch (e) { fail(e); }
+}
+
+/* =====================================================================
+   COQUILLE : EN-TÊTE, ONGLETS, BANDEAU
+   ===================================================================== */
+function tabsFor() {
+  return isAdmin()
+    ? ["dashboard","missions","documents","invoices","quotes","fret","team","settings","billing"]
+    : ["missions","documents","fret"];
+}
+function renderShell() {
+  const c = S.company;
+  if (!tabsFor().includes(S.tab)) S.tab = tabsFor()[0];
+  $("#h-company").textContent = c.name;
+  $("#h-user").textContent = (S.profile.name || S.user.email) + " · " + (isAdmin() ? t("t.admin") : t("t.driver"));
+  const logo = $("#h-logo");
+  logo.style.background = c.logo ? "transparent" : (c.color || "#1e3a8a");
+  logo.innerHTML = c.logo ? `<img src="${esc(c.logo)}" alt="" class="w-full h-full object-contain">` : esc((c.name || "B").slice(0,1).toUpperCase());
+  const newQ = S.quotes.filter(q => q.status === "new").length;
+  $("#tabbar").innerHTML = tabsFor().map(k => {
+    const on = S.tab === k;
+    const badge = k === "quotes" && newQ ? ` <span class="ml-1 text-[10px] bg-amber text-bg rounded-full px-1.5">${newQ}</span>` : "";
+    return `<button data-act="tab" data-tab="${k}" class="whitespace-nowrap px-3 py-2.5 text-sm border-b-2 ${on ? "border-amber text-ink" : "border-transparent text-dim hover:text-ink"}">${t("nav." + k)}${badge}</button>`;
+  }).join("");
+  // bandeau
+  let html = "";
+  if (!isActive()) {
+    html = `<div class="mt-4 card border-amber/40 p-4 text-sm flex flex-wrap items-center justify-between gap-3"><span>${t(isAdmin() ? "ban.expiredAdmin" : "ban.expiredDriver")}</span>${isAdmin() ? `<button data-act="tab" data-tab="billing" class="btn btn-primary">${t("ban.choose")}</button>` : ""}</div>`;
+  } else if (c.plan === "trial" && isAdmin()) {
+    const days = Math.max(0, Math.ceil((c.trialEnds.toMillis() - Date.now()) / 864e5));
+    html = `<div class="mt-4 text-xs text-dim flex items-center gap-3">${t("ban.trial", { n: days })} <button data-act="tab" data-tab="billing" class="text-amber hover:underline">${t("ban.choose")}</button></div>`;
+  }
+  $("#banner").innerHTML = html;
+}
+function refresh(key) {
+  const map = { docs:["documents"], missions:["dashboard","missions","documents"], invoices:["dashboard","invoices"], quotes:["dashboard","quotes"], fret:["fret"], members:["team"], invites:["team"], subs:["billing"] };
+  if (key === "quotes") renderShell();
+  if ((map[key] || []).includes(S.tab)) render();
+}
+
+/* =====================================================================
+   RENDU DES ONGLETS
+   ===================================================================== */
+function render() {
+  if (!S.company) return;
+  const R = { documents: viewDocuments, dashboard: viewDashboard, missions: viewMissions, invoices: viewInvoices, quotes: viewQuotes, fret: viewFret, team: viewTeam, settings: viewSettings, billing: viewBilling };
+  $("#main").innerHTML = `<div class="fade">${(R[S.tab] || viewMissions)()}</div>`;
+  if (S.tab === "settings") bindSettings();
+}
+const statusChip = s => `<span class="chip chip-${s}">${t("st." + s)}</span>`;
+const h2 = (title, right = "") => `<div class="flex items-center justify-between gap-3 mb-5"><h1 class="text-xl font-semibold tracking-tight">${title}</h1>${right}</div>`;
+const empty = msg => `<div class="card p-8 text-center text-sm text-dim">${msg}</div>`;
+
+function missionRow(m) {
+  return `<button data-act="openMission" data-id="${m.id}" class="w-full text-left card p-4 hover:border-dim transition flex items-center justify-between gap-3">
+    <div class="min-w-0">
+      <p class="text-xs font-mono text-dim">${esc(m.ref)} · ${fmtDay(m.date)}</p>
+      <p class="font-medium truncate mt-0.5">${esc(m.depart)} → ${esc(m.arrivee)}</p>
+      <p class="text-xs text-dim truncate mt-0.5">${esc(m.goods || "")}${m.weight ? " · " + esc(m.weight) + " t" : ""}${m.driverName ? " · " + esc(m.driverName) : ""}</p>
+    </div>
+    <div class="flex flex-col items-end gap-1.5 shrink-0">${statusChip(m.status)}${m.price && isAdmin() ? `<span class="text-xs font-mono text-dim">${money(m.price)}</span>` : ""}</div>
+  </button>`;
+}
+function myMissions() { return isAdmin() ? S.missions : S.missions.filter(m => m.driverUid === S.user.uid); }
+
+function viewDashboard() {
+  const ms = S.missions, month = monthStr();
+  const inProg = ms.filter(m => m.status === "en_route").length;
+  const delivered = ms.filter(m => m.status === "delivered" && m.deliveredAt && m.deliveredAt.toDate && m.deliveredAt.toDate().toISOString().slice(0,7) === month).length;
+  const revenue = S.invoices.filter(i => i.month === month).reduce((a, i) => a + (i.ht || 0), 0);
+  const unpaid = S.invoices.filter(i => i.status === "unpaid").reduce((a, i) => a + (i.ttc || 0), 0);
+  const next = ms.filter(m => m.status !== "delivered").sort((a, b) => (a.date || "").localeCompare(b.date || "")).slice(0, 6);
+  const newQ = S.quotes.filter(q => q.status === "new").length;
+  const kpi = (label, val, cls = "") => `<div class="p-5"><p class="text-2xl font-mono ${cls}">${val}</p><p class="text-dim text-xs mt-1">${label}</p></div>`;
+  return h2(t("dash.hello", { n: esc((S.profile.name || "").split(" ")[0]) }), `<button data-act="newMission" class="btn btn-primary">+ ${t("m.new")}</button>`) +
+    `<div class="card grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-line">
+      ${kpi(t("dash.inProgress"), inProg)}${kpi(t("dash.deliveredMonth"), delivered)}${kpi(t("dash.revenueMonth"), money(revenue), "text-emerald")}${kpi(t("dash.unpaid"), money(unpaid), unpaid ? "text-amber" : "")}
+    </div>` +
+    (newQ ? `<button data-act="tab" data-tab="quotes" class="mt-4 w-full card p-4 text-left text-sm hover:border-dim"><span class="text-amber">●</span> ${t("dash.newQuotes", { n: newQ })}</button>` : "") +
+    `<h2 class="mt-8 mb-3 text-sm text-dim">${t("dash.next")}</h2>` +
+    (next.length ? `<div class="space-y-2">${next.map(missionRow).join("")}</div>` : empty(t("dash.start")));
+}
+
+function viewMissions() {
+  const list = myMissions().filter(m => S.mFilter === "all" || m.status === S.mFilter);
+  const filters = ["all","planned","en_route","delivered"].map(f =>
+    `<button data-act="mFilter" data-f="${f}" class="chip ${S.mFilter === f ? "text-ink border-amber" : "text-dim"}">${f === "all" ? t("m.all") : t("st." + f)}</button>`).join("");
+  return h2(t("m.title"), isAdmin() ? `<button data-act="newMission" class="btn btn-primary">+ ${t("m.new")}</button>` : "") +
+    `<div class="flex gap-2 mb-4 overflow-x-auto">${filters}</div>` +
+    (list.length ? `<div class="space-y-2">${list.map(missionRow).join("")}</div>` : empty(t("m.empty")));
+}
+
+function viewInvoices() {
+  const unpaid = S.invoices.filter(i => i.status === "unpaid").reduce((a, i) => a + (i.ttc || 0), 0);
+  return h2(t("i.title"), unpaid ? `<span class="text-sm font-mono text-amber">${t("dash.unpaid")} : ${money(unpaid)}</span>` : "") +
+    (S.invoices.length ? `<div class="space-y-2">${S.invoices.map(i => `
+      <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-xs font-mono text-dim">${t("i.number")} ${esc(i.number)} · ${fmtDay(i.date)}</p>
+          <p class="font-medium truncate">${esc(i.client || t("c.none"))}</p>
+          <p class="text-xs text-dim truncate">${esc(i.desc)}</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-mono text-sm">${money(i.ttc)}</span>
+          <button data-act="togglePaid" data-id="${i.id}" class="chip ${i.status === "paid" ? "chip-delivered" : "chip-en_route"}">${i.status === "paid" ? t("i.paid") : t("i.unpaid")}</button>
+          <button data-act="printInvoice" data-id="${i.id}" class="btn">${t("c.print")}</button>
+        </div>
+      </div>`).join("")}</div>` : empty(t("i.empty")));
+}
+
+function viewQuotes() {
+  const link = baseUrl() + "client.html?c=" + S.cid;
+  return h2(t("q.title")) +
+    `<div class="card p-4 mb-4 text-sm"><p class="text-dim">${t("q.publicLink")}</p><div class="mt-2 flex gap-2"><input class="inp font-mono text-xs" readonly value="${esc(link)}"><button data-act="copyText" data-text="${esc(link)}" class="btn">${t("c.copy")}</button></div></div>` +
+    (S.quotes.length ? `<div class="space-y-2">${S.quotes.map(q => `
+      <div class="card p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-xs font-mono text-dim">${fmtTime(q.createdAt)}</p>
+            <p class="font-medium">${esc(q.depart)} → ${esc(q.arrivee)}</p>
+            <p class="text-xs text-dim mt-0.5">${esc(q.marchandise)} · ${esc(q.poids)} t · ${esc(q.contact)}${q.phone ? " · " + esc(q.phone) : ""}</p>
+            ${q.message ? `<p class="text-sm mt-2 text-dim">${esc(q.message)}</p>` : ""}
+          </div>
+          <span class="chip ${q.status === "new" ? "chip-en_route" : "chip-delivered"}">${q.status === "new" ? t("q.new") : t("q.done")}</span>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button data-act="quoteToMission" data-id="${q.id}" class="btn btn-primary">${t("q.toMission")}</button>
+          ${/@/.test(q.contact || "") ? `<a href="mailto:${esc(q.contact)}?subject=${encodeURIComponent(S.company.name + " — " + q.depart + " → " + q.arrivee)}" class="btn">${t("q.reply")}</a>` : ""}
+          ${q.status === "new" ? `<button data-act="quoteDone" data-id="${q.id}" class="btn">${t("q.markDone")}</button>` : ""}
+          <button data-act="quoteDelete" data-id="${q.id}" class="btn btn-danger">${t("c.delete")}</button>
+        </div>
+      </div>`).join("")}</div>` : empty(t("q.empty")));
+}
+
+function viewFret() {
+  const q = S.fretSearch.toLowerCase(), today = todayStr();
+  const list = S.fret.filter(f => (f.date || "") >= today).filter(f => !q || (f.from + " " + f.to).toLowerCase().includes(q));
+  return h2(t("f.title"), `<button data-act="newFret" class="btn btn-primary">+ ${t("f.publish")}</button>`) +
+    `<p class="text-sm text-dim -mt-3 mb-4">${t("f.sub")}</p>
+    <input data-act-input="fretSearch" class="inp mb-4" placeholder="${t("f.searchPh")}" value="${esc(S.fretSearch)}">` +
+    (list.length ? `<div class="space-y-2">${list.map(f => `
+      <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="font-medium">${esc(f.from)} → ${esc(f.to)}</p>
+          <p class="text-xs text-dim mt-0.5">${fmtDay(f.date)} · ${esc(f.weight)} t · ${esc(f.companyName)}</p>
+          <p class="text-xs mt-1 font-mono">${esc(f.contact)}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          ${f.price ? `<span class="font-mono text-emerald">${money(f.price)}</span>` : ""}
+          ${f.companyId === S.cid ? `<button data-act="fretDelete" data-id="${f.id}" class="btn btn-danger">${t("c.delete")}</button>` : ""}
+        </div>
+      </div>`).join("")}</div>` : empty(t("f.empty")));
+}
+
+function viewTeam() {
+  const plan = PLANS[S.company.plan] || PLANS.trial;
+  const drivers = S.members.filter(m => m.role === "driver").length;
+  const used = drivers + S.invites.length;
+  const canInvite = plan.maxDrivers > used;
+  return h2(t("t.title")) +
+    `<div class="card p-4 mb-4 text-sm">
+      <p class="text-dim">${plan.maxDrivers ? t("t.limit", { n: plan.maxDrivers }) + ` (${drivers}/${plan.maxDrivers})` : t("t.soloLimit")}</p>
+      ${plan.maxDrivers ? `<button data-act="createInvite" class="btn btn-primary mt-3" ${canInvite ? "" : "disabled"}>+ ${t("t.invite")}</button><p class="text-xs text-dim mt-2">${t("t.inviteHelp")}</p>` : `<button data-act="tab" data-tab="billing" class="btn mt-3">${t("ban.choose")}</button>`}
+    </div>` +
+    (S.invites.length ? `<h2 class="text-sm text-dim mb-2">${t("t.pending")}</h2><div class="space-y-2 mb-6">${S.invites.map(i => {
+      const link = baseUrl() + "app.html?invite=" + i.id;
+      return `<div class="card p-3 flex flex-wrap items-center justify-between gap-2"><span class="font-mono text-lg tracking-widest">${esc(i.id)}</span>
+        <div class="flex gap-2"><button data-act="copyText" data-text="${esc(link)}" class="btn">${t("c.copy")}</button><button data-act="inviteDelete" data-id="${i.id}" class="btn btn-danger">${t("c.delete")}</button></div></div>`;
+    }).join("")}</div>` : "") +
+    `<h2 class="text-sm text-dim mb-2">${t("t.members")}</h2><div class="space-y-2">${S.members.map(m => `
+      <div class="card p-3 flex items-center justify-between gap-2">
+        <div class="min-w-0"><p class="font-medium truncate">${esc(m.name || m.email)}</p><p class="text-xs text-dim truncate">${esc(m.email)} · ${m.role === "admin" ? t("t.admin") : t("t.driver")}</p></div>
+        ${m.role === "driver" ? `<button data-act="removeMember" data-id="${m.id}" class="btn btn-danger">${t("t.remove")}</button>` : ""}
+      </div>`).join("")}</div>`;
+}
+
+function viewSettings() {
+  const c = S.company, link = baseUrl() + "client.html?c=" + S.cid;
+  const f = (name, key, extra = "") => `<div><label class="lbl">${t(key)}</label><input name="${name}" value="${esc(c[name] ?? "")}" class="inp" ${extra}></div>`;
+  return h2(t("s.title")) +
+    `<div class="card p-4 mb-4 text-sm"><p class="font-medium">${t("s.publicPage")}</p><p class="text-dim text-xs mt-1">${t("s.publicHelp")}</p>
+      <div class="mt-2 flex gap-2"><input class="inp font-mono text-xs" readonly value="${esc(link)}"><button data-act="copyText" data-text="${esc(link)}" class="btn">${t("c.copy")}</button><a href="${esc(link)}" target="_blank" class="btn">↗</a></div></div>
+    <form data-form="settings" class="card p-5 space-y-3">
+      ${f("name", "s.company", 'required maxlength="100"')}
+      <div class="grid md:grid-cols-2 gap-3">${f("nif", "s.nif", 'maxlength="20"')}${f("taxRate", "s.taxRate", 'type="number" min="0" max="30" step="0.1"')}</div>
+      ${f("address", "s.address", 'maxlength="160"')}
+      <div class="grid md:grid-cols-3 gap-3">${f("city", "s.city", 'maxlength="60"')}${f("phone", "s.phone", 'maxlength="30"')}${f("email", "s.email", 'type="email" maxlength="100"')}</div>
+      <div class="grid md:grid-cols-2 gap-3 items-end">
+        <div><label class="lbl">${t("s.color")}</label><input type="color" name="color" value="${esc(c.color || "#f5a524")}" class="h-10 w-20 bg-transparent border border-line rounded-md"></div>
+        <div><label class="lbl">${t("s.logo")}</label>
+          <div class="flex items-center gap-3"><div id="logo-prev" class="w-12 h-12 rounded-md border border-line overflow-hidden flex items-center justify-center">${c.logo ? `<img src="${esc(c.logo)}" class="w-full h-full object-contain">` : ""}</div>
+          <input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp" class="text-xs text-dim">
+          ${c.logo ? `<button type="button" data-act="logoRemove" class="text-xs text-danger">${t("s.logoRemove")}</button>` : ""}</div>
+          <p class="text-[11px] text-dim mt-1">${t("s.logoHelp")}</p></div>
+      </div>
+      <button class="btn btn-primary">${t("c.save")}</button>
+    </form>
+    <div class="card p-5 mt-4 text-sm"><p class="font-medium">${t("s.account")}</p><p class="text-dim text-xs mt-1">${esc(S.user.email)}</p>
+      <button data-act="resetPwd" class="btn mt-3">${t("s.resetPwd")}</button></div>`;
+}
+let pendingLogo; // undefined = pas de changement, "" = retiré, dataURL = nouveau
+function bindSettings() {
+  pendingLogo = undefined;
+  const input = $("#logo-file");
+  if (input) input.addEventListener("change", () => {
+    const file = input.files[0]; if (!file) return;
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 240, k = Math.min(1, max / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas"); cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      let data = cv.toDataURL("image/png");
+      if (data.length > 120000) data = cv.toDataURL("image/jpeg", 0.85);
+      pendingLogo = data; URL.revokeObjectURL(url);
+      $("#logo-prev").innerHTML = `<img src="${data}" class="w-full h-full object-contain">`;
+    };
+    img.src = url;
+  });
+}
+
+function viewBilling() {
+  const c = S.company, active = isActive();
+  let status;
+  if (c.paidUntil && c.paidUntil.toMillis() > Date.now() && c.plan !== "trial") status = t("b.activeUntil", { p: c.plan === "flotte" ? "Flotte" : "Solo", d: fmtDay(c.paidUntil) });
+  else if (c.plan === "trial" && active) status = t("b.trialUntil", { d: fmtDay(c.trialEnds) });
+  else status = t("b.expired");
+  const plan = (key, name, feats) => {
+    const current = c.plan === key && c.paidUntil && c.paidUntil.toMillis() > Date.now();
+    return `<div class="card p-5 flex flex-col ${current ? "border-amber" : ""}">
+      <p class="font-medium">${name}</p>
+      <p class="mt-2"><span class="text-3xl font-semibold">${PLANS[key].price} €</span> <span class="text-dim text-sm">${t("b.perMonth")}</span></p>
+      <p class="text-sm text-dim mt-3 flex-1">${t(feats)}</p>
+      ${current ? `<p class="mt-4 text-sm text-amber">${t("b.current")}</p>` : `<button data-act="checkout" data-plan="${key}" class="btn btn-primary mt-4">${t("b.subscribe")}</button>`}
+    </div>`;
+  };
+  const owner = S.company.ownerUid === S.user.uid;
+  return h2(t("b.title")) +
+    `<div class="card p-4 mb-4 text-sm">${status}</div>
+    <div class="grid md:grid-cols-2 gap-4">${plan("solo", "Solo", "b.soloF")}${plan("flotte", LANG === "es" ? "Flota" : "Flotte", "b.flotteF")}</div>
+    ${owner && c.subId ? `<button data-act="portal" class="btn mt-4">${t("b.manage")}</button>` : ""}
+    <p class="text-xs text-dim mt-4">${t("b.secure")}</p>`;
+}
+
+/* =====================================================================
+   MISSIONS : FORMULAIRE, DÉTAIL, STATUTS, GPS, SIGNATURE
+   ===================================================================== */
+function missionForm(m = {}) {
+  const v = k => esc(m[k] ?? "");
+  const inp = (k, label, extra = "") => `<div><label class="lbl">${t(label)}</label><input name="${k}" value="${v(k)}" class="inp" ${extra}></div>`;
+  const drivers = S.members.length ? S.members : [{ id: S.user.uid, name: S.profile.name, role: "admin" }];
+  const sel = m.driverUid || S.user.uid;
+  return `<form data-form="mission" data-id="${m.id || ""}" data-quote="${esc(m.quoteId || "")}" class="space-y-4">
+    <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">${m.id ? t("m.edit") : t("m.new")}</h2><button type="button" data-act="closeModal" class="text-dim text-xl leading-none">×</button></div>
+    <p class="text-xs text-dim uppercase tracking-wider">${t("m.secRoute")}</p>
+    <div class="grid md:grid-cols-2 gap-3">
+      ${inp("depart", "m.depart", 'required maxlength="120"')}${inp("arrivee", "m.arrivee", 'required maxlength="120"')}
+      ${inp("date", "m.date", `type="date" required value="${v("date") || todayStr()}"`)}
+      <div><label class="lbl">${t("m.driver")}</label><select name="driverUid" class="inp">${drivers.map(d => `<option value="${d.id}" ${d.id === sel ? "selected" : ""}>${esc(d.name || d.email)}${d.id === S.user.uid ? " (" + t("m.me") + ")" : ""}</option>`).join("")}</select></div>
+      ${inp("goods", "m.goods", 'maxlength="120"')}${inp("weight", "m.weight", 'inputmode="decimal" maxlength="10"')}
+      ${inp("plate", "m.plate", 'maxlength="30"')}${inp("eta", "m.eta", `maxlength="40" placeholder="${t("m.etaPh")}"`)}
+    </div>
+    <p class="text-xs text-dim uppercase tracking-wider">${t("m.secParties")}</p>
+    <div class="grid md:grid-cols-2 gap-3">
+      ${inp("shipper", "m.shipper", 'maxlength="120"')}${inp("consignee", "m.consignee", 'maxlength="120"')}
+      ${inp("shipperAddr", "m.shipperAddr", 'maxlength="200"')}${inp("consigneeAddr", "m.consigneeAddr", 'maxlength="200"')}
+    </div>
+    <p class="text-xs text-dim uppercase tracking-wider">${t("m.secBilling")}</p>
+    <div class="grid md:grid-cols-2 gap-3">
+      ${inp("client", "m.client", 'maxlength="120"')}${inp("clientNif", "m.clientNif", 'maxlength="20"')}
+      ${inp("clientEmail", "m.clientEmail", 'type="email" maxlength="100"')}${inp("price", "m.price", 'type="number" min="0" step="0.01"')}
+    </div>
+    <div><label class="lbl">${t("m.notes")}</label><textarea name="notes" rows="2" maxlength="500" class="inp">${v("notes")}</textarea></div>
+    <div class="flex gap-2 justify-end"><button type="button" data-act="closeModal" class="btn">${t("c.cancel")}</button><button class="btn btn-primary">${t("c.save")}</button></div>
+  </form>`;
+}
+
+FORMS.mission = async f => {
+  if (!guard()) return;
+  const id = f.dataset.id, quoteId = f.dataset.quote;
+  const fields = ["depart","arrivee","date","goods","weight","plate","eta","shipper","consignee","shipperAddr","consigneeAddr","client","clientNif","clientEmail","notes"];
+  const data = {}; fields.forEach(k => data[k] = f[k].value.trim());
+  data.price = f.price.value ? round2(f.price.value) : 0;
+  data.driverUid = f.driverUid.value;
+  const d = S.members.find(m => m.id === data.driverUid);
+  data.driverName = d ? (d.name || d.email) : (S.profile.name || "");
+  const base = db.collection("companies").doc(S.cid).collection("missions");
+  const b = db.batch();
+  try {
+    if (id) {
+      const m = S.missions.find(x => x.id === id);
+      b.update(base.doc(id), data);
+      if (m && m.trackingCode) b.update(db.doc("tracking/" + m.trackingCode), { depart: data.depart, arrivee: data.arrivee, eta: data.eta, updatedAt: FV.serverTimestamp() });
+    } else {
+      const ref = base.doc(), code = rand(10);
+      Object.assign(data, {
+        ref: "M-" + todayStr().replace(/-/g, "") + "-" + rand(3), status: "planned", trackingCode: code,
+        position: null, invoiceId: null, invoiceNumber: "", signature: "", signedBy: "", deliveredAt: null,
+        createdBy: S.user.uid, createdAt: FV.serverTimestamp()
+      });
+      b.set(ref, data);
+      b.set(db.doc("tracking/" + code), { companyId: S.cid, companyName: S.company.name, ref: data.ref, depart: data.depart, arrivee: data.arrivee, status: "planned", position: null, eta: data.eta, updatedAt: FV.serverTimestamp() });
+      if (quoteId) b.update(db.doc(`companies/${S.cid}/quotes/${quoteId}`), { status: "done" });
+    }
+    await b.commit();
+    toast(t("m.saved")); closeModal();
+  } catch (e) { fail(e); }
+};
+
+function missionDetail(m) {
+  const link = baseUrl() + "client.html?c=" + S.cid + "&t=" + m.trackingCode;
+  const row = (label, val) => val ? `<div><p class="text-xs text-dim">${t(label)}</p><p class="text-sm">${esc(val)}</p></div>` : "";
+  const pos = m.position;
+  const gpsOnThis = gps.id !== null && gps.missionId === m.id;
+  const mine = m.driverUid === S.user.uid;
+  let actions = "";
+  if (m.status === "planned") actions += `<button data-act="startMission" data-id="${m.id}" class="btn btn-primary">${t("m.start")}</button>`;
+  if (m.status === "en_route") {
+    actions += `<button data-act="deliverMission" data-id="${m.id}" class="btn btn-primary">${t("m.deliver")}</button>`;
+    if (mine) actions += gpsOnThis ? `<button data-act="gpsStop" class="btn">${t("m.gpsOff")}</button>` : `<button data-act="gpsStart" data-id="${m.id}" class="btn">📍 ${t("m.gpsOn")}</button>`;
+  }
+  actions += `<button data-act="printCmr" data-id="${m.id}" class="btn">${t("m.cmr")} · ${t("c.print")}</button>`;
+  actions += `<button data-act="decaOpen" data-id="${m.id}" class="btn">${m.deca ? "DeCA ✓" : "+ DeCA"}</button>`;
+  actions += `<button data-act="scanCamera" data-id="${m.id}" class="btn">📷 ${t("d.scan")}</button>`;
+  actions += `<button data-act="copyText" data-text="${esc(link)}" data-msg="${esc(t("m.trackCopied"))}" class="btn">🔗 ${t("m.trackLink")}</button>`;
+  if (isAdmin()) {
+    if (m.invoiceId) actions += `<button data-act="printInvoice" data-id="${m.invoiceId}" class="btn">${t("m.invoice")} ${esc(m.invoiceNumber)}</button>`;
+    else if (m.status === "delivered") actions += `<button data-act="invoiceMission" data-id="${m.id}" class="btn">${t("m.createInvoice")}</button>`;
+    actions += `<button data-act="editMission" data-id="${m.id}" class="btn">${t("c.edit")}</button>`;
+    actions += `<button data-act="deleteMission" data-id="${m.id}" class="btn btn-danger">${t("c.delete")}</button>`;
+  }
+  const map = pos ? `<iframe class="w-full h-48 rounded-md border border-line mt-2" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${pos.lng - 0.08}%2C${pos.lat - 0.05}%2C${pos.lng + 0.08}%2C${pos.lat + 0.05}&layer=mapnik&marker=${pos.lat}%2C${pos.lng}"></iframe>` : "";
+  return `<div class="flex items-start justify-between gap-3">
+      <div><p class="text-xs font-mono text-dim">${esc(m.ref)} · ${fmtDay(m.date)}</p><h2 class="text-lg font-semibold mt-0.5">${esc(m.depart)} → ${esc(m.arrivee)}</h2></div>
+      <div class="flex items-center gap-3">${statusChip(m.status)}<button data-act="closeModal" class="text-dim text-xl leading-none">×</button></div>
+    </div>
+    ${gpsOnThis ? `<p class="mt-3 text-xs text-amber">● ${t("m.gpsActive")}</p>` : ""}
+    <div class="mt-4 flex flex-wrap gap-2">${actions}</div>
+    <div class="mt-5 grid grid-cols-2 md:grid-cols-3 gap-4">
+      ${row("m.goods", m.goods)}${row("m.weight", m.weight ? m.weight + " t" : "")}${row("m.driver", m.driverName)}
+      ${row("m.plate", m.plate)}${row("m.shipper", m.shipper)}${row("m.consignee", m.consignee)}
+      ${isAdmin() ? row("m.client", m.client) + row("m.price", m.price ? money(m.price) : "") : ""}
+      ${m.signedBy ? row("m.signName", m.signedBy) : ""}
+    </div>
+    ${m.notes ? `<p class="mt-4 text-sm text-dim">${esc(m.notes)}</p>` : ""}
+    ${m.status !== "delivered" ? `<form data-form="eta" data-id="${m.id}" class="mt-5 flex gap-2 items-end"><div class="flex-1"><label class="lbl">${t("m.eta")}</label><input name="eta" value="${esc(m.eta || "")}" maxlength="40" placeholder="${t("m.etaPh")}" class="inp"></div><button class="btn">${t("c.save")}</button></form>` : ""}
+    <div class="mt-5"><p class="text-xs text-dim">${t("m.lastPos")}</p><p class="text-sm font-mono">${pos ? `${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)} · ${fmtTime(pos.at)}` : t("m.noPos")}</p>${map}</div>
+    ${m.signature ? `<div class="mt-5"><p class="text-xs text-dim mb-1">${t("m.signTitle")}</p><img src="${esc(m.signature)}" class="bg-white rounded-md max-h-28"></div>` : ""}`;
+}
+function openMission(id) {
+  const m = S.missions.find(x => x.id === id); if (!m) return;
+  S.openMissionId = id; openModal(missionDetail(m));
+}
+function refreshMissionModal() {
+  if (!S.openMissionId) return;
+  const box = $("#modal-body");
+  if (box.contains(document.activeElement) && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  const m = S.missions.find(x => x.id === S.openMissionId);
+  if (m) box.innerHTML = missionDetail(m); else closeModal();
+}
+FORMS.eta = async f => {
+  if (!guard()) return;
+  const m = S.missions.find(x => x.id === f.dataset.id); if (!m) return;
+  const eta = f.eta.value.trim();
+  const b = db.batch();
+  b.update(db.doc(`companies/${S.cid}/missions/${m.id}`), { eta });
+  b.update(db.doc("tracking/" + m.trackingCode), { eta, updatedAt: FV.serverTimestamp() });
+  try { await b.commit(); document.activeElement.blur(); toast(t("m.saved")); } catch (e) { fail(e); }
+};
+
+async function setStatus(m, status, extra = {}) {
+  const b = db.batch();
+  b.update(db.doc(`companies/${S.cid}/missions/${m.id}`), { status, ...extra });
+  const tr = { status, updatedAt: FV.serverTimestamp() };
+  if (extra.deliveredAt) tr.deliveredAt = extra.deliveredAt;
+  b.update(db.doc("tracking/" + m.trackingCode), tr);
+  await b.commit();
+}
+
+/* --- GPS --- */
+const gps = { id: null, missionId: null, last: 0, lock: null };
+async function startGps(m) {
+  if (!navigator.geolocation) return toast(t("m.gpsUnsupported"));
+  stopGps();
+  gps.missionId = m.id; gps.last = 0;
+  try { if (navigator.wakeLock) gps.lock = await navigator.wakeLock.request("screen"); } catch (e) {}
+  gps.id = navigator.geolocation.watchPosition(pos => {
+    if (Date.now() - gps.last < GPS_INTERVAL_MS) return;
+    gps.last = Date.now();
+    const mm = S.missions.find(x => x.id === gps.missionId);
+    if (!mm || mm.status !== "en_route") return stopGps();
+    const p = { lat: +pos.coords.latitude.toFixed(5), lng: +pos.coords.longitude.toFixed(5), at: TS.now() };
+    const b = db.batch();
+    b.update(db.doc(`companies/${S.cid}/missions/${mm.id}`), { position: p });
+    b.update(db.doc("tracking/" + mm.trackingCode), { position: p, updatedAt: FV.serverTimestamp() });
+    b.commit().catch(e => console.warn("gps", e.code));
+  }, err => { toast(err.code === 1 ? t("m.gpsDenied") : t("m.gpsUnsupported")); stopGps(); }, { enableHighAccuracy: true, maximumAge: 30000, timeout: 30000 });
+  refreshMissionModal();
+}
+function stopGps() {
+  if (gps.id !== null && navigator.geolocation) navigator.geolocation.clearWatch(gps.id);
+  gps.id = null; gps.missionId = null;
+  if (gps.lock) { gps.lock.release().catch(() => {}); gps.lock = null; }
+}
+document.addEventListener("visibilitychange", async () => {
+  if (gps.id !== null && document.visibilityState === "visible" && navigator.wakeLock && !gps.lock) { try { gps.lock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+});
+
+/* --- Signature de livraison --- */
+function openSignature(m) {
+  openModal(`<form data-form="deliver" data-id="${m.id}" class="space-y-3">
+    <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">${t("m.signTitle")}</h2><button type="button" data-act="backToMission" data-id="${m.id}" class="text-dim text-xl leading-none">×</button></div>
+    <canvas id="sigpad"></canvas>
+    <button type="button" data-act="sigClear" class="text-xs text-dim">${t("m.signClear")}</button>
+    <div><label class="lbl">${t("m.signName")}</label><input name="signedBy" required maxlength="80" class="inp"></div>
+    <button class="btn btn-primary w-full">${t("m.signConfirm")}</button>
+  </form>`);
+  const cv = $("#sigpad"), r = cv.getBoundingClientRect(), ratio = window.devicePixelRatio || 1;
+  cv.width = r.width * ratio; cv.height = r.height * ratio;
+  const ctx = cv.getContext("2d"); ctx.scale(ratio, ratio); ctx.lineWidth = 2.2; ctx.lineCap = "round"; ctx.strokeStyle = "#0a1330";
+  let drawing = false; cv.dataset.empty = "1";
+  const pt = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  cv.addEventListener("pointerdown", e => { drawing = true; cv.setPointerCapture(e.pointerId); ctx.beginPath(); ctx.moveTo(...pt(e)); });
+  cv.addEventListener("pointermove", e => { if (!drawing) return; ctx.lineTo(...pt(e)); ctx.stroke(); cv.dataset.empty = "0"; });
+  cv.addEventListener("pointerup", () => drawing = false);
+}
+FORMS.deliver = async f => {
+  if (!guard()) return;
+  const m = S.missions.find(x => x.id === f.dataset.id), cv = $("#sigpad");
+  if (!m) return;
+  if (cv.dataset.empty === "1" || !f.signedBy.value.trim()) return toast(t("m.signRequired"));
+  // signature réduite pour rester légère dans Firestore
+  const small = document.createElement("canvas"); small.width = 480; small.height = Math.round(480 * cv.height / cv.width);
+  small.getContext("2d").drawImage(cv, 0, 0, small.width, small.height);
+  try {
+    await setStatus(m, "delivered", { signature: small.toDataURL("image/png"), signedBy: f.signedBy.value.trim(), deliveredAt: TS.now() });
+    if (gps.missionId === m.id) stopGps();
+    if (m.price > 0 && !m.invoiceId) await createInvoice({ ...m });
+    openMission(m.id);
+  } catch (e) { fail(e); }
+};
+
+/* --- Facturation --- */
+async function createInvoice(m) {
+  if (!(m.price > 0)) return toast(t("m.noPrice"));
+  const cref = db.doc("companies/" + S.cid);
+  const iref = cref.collection("invoices").doc();
+  const mref = cref.collection("missions").doc(m.id);
+  const number = await db.runTransaction(async tx => {
+    const c = (await tx.get(cref)).data();
+    const mm = (await tx.get(mref)).data();
+    if (mm.invoiceId) return mm.invoiceNumber;
+    const seq = (c.invoiceSeq || 0) + 1;
+    const number = new Date().getFullYear() + "-" + String(seq).padStart(4, "0");
+    const rate = Number(c.taxRate ?? 21), ht = round2(mm.price), tva = round2(ht * rate / 100);
+    tx.update(cref, { invoiceSeq: seq });
+    tx.set(iref, {
+      number, seq, missionId: m.id, missionRef: mm.ref,
+      client: mm.client || "", clientEmail: mm.clientEmail || "", clientNif: mm.clientNif || "",
+      desc: `Transport ${mm.depart} → ${mm.arrivee}` + (mm.goods ? ` · ${mm.goods}` : "") + (mm.weight ? ` · ${mm.weight} t` : ""),
+      date: todayStr(), month: monthStr(), ht, rate, tva, ttc: round2(ht + tva), status: "unpaid",
+      issuer: { name: c.name || "", nif: c.nif || "", address: c.address || "", city: c.city || "", phone: c.phone || "", email: c.email || "" },
+      createdAt: FV.serverTimestamp()
+    });
+    tx.update(mref, { invoiceId: iref.id, invoiceNumber: number });
+    return number;
+  });
+  toast(t("m.invoiceDone", { n: number }));
+}
+
+/* --- Impressions (CMR, facture) --- */
+function printDoc(title, body) {
+  const w = window.open("", "_blank");
+  if (!w) return toast(t("c.popup"));
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
+    *{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px;font-size:12px}
+    h1{font-size:18px;margin:0} .grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid #111;border-bottom:none}
+    .box{border-bottom:1px solid #111;padding:6px 8px;min-height:62px} .box:nth-child(odd){border-right:1px solid #111}
+    .n{font-size:9px;color:#444;text-transform:uppercase} .v{margin-top:3px;font-size:12px;white-space:pre-wrap}
+    .full{grid-column:1/3;border-right:none!important} table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{border:1px solid #111;padding:6px 8px;text-align:left} td.r,th.r{text-align:right} .muted{color:#555}
+    @media print{ body{margin:10mm} }</style></head><body>${body}</body></html>`);
+  w.document.close();
+  setTimeout(() => { w.focus(); w.print(); }, 450);
+}
+function printCmr(m) {
+  const c = S.company;
+  const box = (n, label, val, full) => `<div class="box ${full ? "full" : ""}"><div class="n">${n}. ${label}</div><div class="v">${esc(val || "")}</div></div>`;
+  const carrier = [c.name, c.nif, [c.address, c.city].filter(Boolean).join(", "), c.phone].filter(Boolean).join("\n");
+  printDoc("CMR " + m.ref, `
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px">
+      <div><h1>LETTRE DE VOITURE / CARTA DE PORTE — CMR</h1><div class="muted">Convention CMR · ${esc(m.ref)}</div></div>
+      ${c.logo ? `<img src="${esc(c.logo)}" style="max-height:48px">` : ""}
+    </div>
+    <div class="grid">
+      ${box(1, "Expéditeur / Remitente", [m.shipper, m.shipperAddr].filter(Boolean).join("\n"))}
+      ${box(16, "Transporteur / Transportista", carrier)}
+      ${box(2, "Destinataire / Destinatario", [m.consignee, m.consigneeAddr].filter(Boolean).join("\n"))}
+      ${box(17, "Transporteurs successifs / Porteadores sucesivos", "")}
+      ${box(3, "Lieu de livraison / Lugar de entrega", m.arrivee)}
+      ${box(4, "Lieu et date de prise en charge / Lugar y fecha de carga", m.depart + " — " + fmtDay(m.date))}
+      ${box("6-9", "Marchandise / Mercancía", m.goods)}
+      ${box(11, "Poids brut (t) / Peso bruto (t)", m.weight)}
+      ${box(5, "Documents annexés / Documentos anexos", "")}
+      ${box(25, "Immatriculation / Matrícula", m.plate)}
+      ${box(18, "Réserves du transporteur / Reservas del porteador", m.notes, true)}
+      ${box(21, "Établie à / Formalizado en", m.depart + " — " + fmtDay(m.date))}
+      ${box(22, "Signature expéditeur / Firma remitente", "")}
+      ${box(23, "Signature transporteur / Firma transportista", m.driverName)}
+      <div class="box"><div class="n">24. Marchandise reçue / Mercancía recibida</div>
+        ${m.signature ? `<img src="${esc(m.signature)}" style="max-height:70px;display:block;margin-top:4px">` : ""}
+        <div class="v">${esc(m.signedBy || "")}${m.deliveredAt ? " — " + fmtTime(m.deliveredAt) : ""}</div></div>
+    </div>`);
+}
+function printInvoice(inv) {
+  const is = inv.issuer || {};
+  printDoc(t("pr.invoice") + " " + inv.number, `
+    <div style="display:flex;justify-content:space-between;gap:20px">
+      <div>${S.company.logo ? `<img src="${esc(S.company.logo)}" style="max-height:56px;margin-bottom:8px"><br>` : ""}
+        <strong>${esc(is.name)}</strong><br>${is.nif ? "NIF/CIF : " + esc(is.nif) + "<br>" : ""}${esc(is.address)}${is.address ? "<br>" : ""}${esc(is.city)}<br>${esc(is.phone)} ${esc(is.email)}</div>
+      <div style="text-align:right"><h1>${t("pr.invoice")} ${esc(inv.number)}</h1><div class="muted">${t("pr.date")} : ${fmtDay(inv.date)}</div><div class="muted">${t("pr.ref")} : ${esc(inv.missionRef)}</div></div>
+    </div>
+    <div style="margin-top:24px;border:1px solid #111;padding:10px;max-width:320px">
+      <div class="n">${t("pr.billTo")}</div><strong>${esc(inv.client || "—")}</strong><br>${inv.clientNif ? "NIF/CIF : " + esc(inv.clientNif) + "<br>" : ""}${esc(inv.clientEmail)}
+    </div>
+    <table><tr><th>${t("pr.desc")}</th><th class="r">${t("i.ht")}</th></tr>
+      <tr><td>${esc(inv.desc)}</td><td class="r">${money(inv.ht)}</td></tr></table>
+    <table style="width:320px;margin-left:auto">
+      <tr><td>${t("pr.base")}</td><td class="r">${money(inv.ht)}</td></tr>
+      <tr><td>IVA ${esc(inv.rate)} %</td><td class="r">${money(inv.tva)}</td></tr>
+      <tr><th>${t("pr.total")}</th><th class="r">${money(inv.ttc)}</th></tr></table>`);
+}
+
+/* =====================================================================
+   ACTIONS (délégation des clics)
+   ===================================================================== */
+const ACT = {
+  lang() { LANG = LANGS[(LANGS.indexOf(LANG) + 1) % LANGS.length]; try { localStorage.setItem("bouadigital-lang", LANG); } catch (e) {} applyStaticI18n(); if (S.company) { renderShell(); render(); } },
+  authTab: d => authTab(d.tab),
+  toggleCode: (d, el) => $("#code-wrap").classList.toggle("hidden", !el.checked),
+  async forgot() { const email = $("#f-login").email.value.trim(); if (!email) return toast(t("auth.enterEmail")); try { await auth.sendPasswordResetEmail(email); toast(t("auth.resetSent")); } catch (e) { authError(e); } },
+  async resetPwd() { try { await auth.sendPasswordResetEmail(S.user.email); toast(t("auth.resetSent")); } catch (e) { fail(e); } },
+  logout() { stopAll(); auth.signOut(); },
+  tab: d => { S.tab = d.tab; renderShell(); render(); window.scrollTo(0, 0); },
+  mFilter: d => { S.mFilter = d.f; render(); },
+  closeModal,
+  copyText: d => copy(d.text, d.msg),
+  newMission() { if (guard()) openModal(missionForm()); },
+  openMission: d => openMission(d.id),
+  backToMission: d => openMission(d.id),
+  editMission: d => { const m = S.missions.find(x => x.id === d.id); if (m && guard()) { S.openMissionId = null; openModal(missionForm(m)); } },
+  async deleteMission(d) {
+    const m = S.missions.find(x => x.id === d.id); if (!m || !confirm(t("c.confirmDelete"))) return;
+    const b = db.batch(); b.delete(db.doc(`companies/${S.cid}/missions/${m.id}`)); b.delete(db.doc("tracking/" + m.trackingCode));
+    try { await b.commit(); closeModal(); } catch (e) { fail(e); }
+  },
+  async startMission(d) { const m = S.missions.find(x => x.id === d.id); if (!m || !guard()) return; try { await setStatus(m, "en_route", { startedAt: TS.now() }); if (m.driverUid === S.user.uid) startGps(m); } catch (e) { fail(e); } },
+  deliverMission(d) { const m = S.missions.find(x => x.id === d.id); if (m && guard()) { S.openMissionId = null; openSignature(m); } },
+  sigClear() { const cv = $("#sigpad"); cv.getContext("2d").clearRect(0, 0, cv.width, cv.height); cv.dataset.empty = "1"; },
+  gpsStart(d) { const m = S.missions.find(x => x.id === d.id); if (m && guard()) startGps(m); },
+  gpsStop() { stopGps(); refreshMissionModal(); },
+  async invoiceMission(d) { const m = S.missions.find(x => x.id === d.id); if (m && guard()) { try { await createInvoice(m); } catch (e) { fail(e); } } },
+  printCmr(d) { const m = S.missions.find(x => x.id === d.id); if (m) printCmr(m); },
+  async printInvoice(d) {
+    let inv = S.invoices.find(x => x.id === d.id);
+    if (!inv) { const s = await db.doc(`companies/${S.cid}/invoices/${d.id}`).get().catch(() => null); if (s && s.exists) inv = { id: s.id, ...s.data() }; }
+    if (inv) printInvoice(inv);
+  },
+  async togglePaid(d) { const i = S.invoices.find(x => x.id === d.id); if (!i || !guard()) return; try { await db.doc(`companies/${S.cid}/invoices/${i.id}`).update({ status: i.status === "paid" ? "unpaid" : "paid" }); } catch (e) { fail(e); } },
+  quoteToMission(d) {
+    const q = S.quotes.find(x => x.id === d.id); if (!q || !guard()) return;
+    openModal(missionForm({ quoteId: q.id, depart: q.depart, arrivee: q.arrivee, goods: q.marchandise, weight: q.poids, clientEmail: /@/.test(q.contact) ? q.contact : "", notes: [q.phone, q.message].filter(Boolean).join(" — ") }));
+  },
+  async quoteDone(d) { try { await db.doc(`companies/${S.cid}/quotes/${d.id}`).update({ status: "done" }); } catch (e) { fail(e); } },
+  async quoteDelete(d) { if (!confirm(t("c.confirmDelete"))) return; try { await db.doc(`companies/${S.cid}/quotes/${d.id}`).delete(); } catch (e) { fail(e); } },
+  newFret() {
+    if (!guard()) return;
+    openModal(`<form data-form="fret" class="space-y-3">
+      <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">${t("f.publish")}</h2><button type="button" data-act="closeModal" class="text-dim text-xl leading-none">×</button></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="lbl">${t("f.from")}</label><input name="from" required maxlength="80" class="inp"></div>
+        <div><label class="lbl">${t("f.to")}</label><input name="to" required maxlength="80" class="inp"></div>
+        <div><label class="lbl">${t("f.date")}</label><input name="date" type="date" required min="${todayStr()}" value="${todayStr()}" class="inp"></div>
+        <div><label class="lbl">${t("f.weight")}</label><input name="weight" required maxlength="10" inputmode="decimal" class="inp"></div>
+        <div><label class="lbl">${t("f.price")}</label><input name="price" type="number" min="0" step="1" class="inp"></div>
+        <div><label class="lbl">${t("f.contact")}</label><input name="contact" required maxlength="80" value="${esc(S.company.phone || S.company.email || "")}" class="inp"></div>
+      </div>
+      <button class="btn btn-primary w-full">${t("f.publish")}</button></form>`);
+  },
+  async fretDelete(d) { if (!confirm(t("c.confirmDelete"))) return; try { await db.doc("fret/" + d.id).delete(); } catch (e) { fail(e); } },
+  async createInvite() {
+    if (!guard()) return;
+    const plan = PLANS[S.company.plan] || PLANS.trial;
+    if (S.members.filter(m => m.role === "driver").length + S.invites.length >= plan.maxDrivers) return toast(t("t.limitReached"));
+    const code = rand(8);
+    try { await db.doc("invites/" + code).set({ companyId: S.cid, companyName: S.company.name, role: "driver", usedBy: null, createdBy: S.user.uid, createdAt: FV.serverTimestamp() }); toast(t("t.codeCreated") + " : " + code); }
+    catch (e) { fail(e); }
+  },
+  async inviteDelete(d) { try { await db.doc("invites/" + d.id).delete(); } catch (e) { fail(e); } },
+  async removeMember(d) { if (!confirm(t("c.confirmDelete"))) return; try { await db.doc("users/" + d.id).delete(); } catch (e) { fail(e); } },
+  logoRemove() { pendingLogo = ""; $("#logo-prev").innerHTML = ""; },
+  async checkout(d) {
+    const price = d.plan === "flotte" ? STRIPE.priceFlotte : STRIPE.priceSolo;
+    if (price.includes("REPLACE")) return toast(t("b.notConfigured"));
+    toast(t("b.redirecting"));
+    try {
+      const ref = await db.collection("customers").doc(S.user.uid).collection("checkout_sessions").add({
+        price, allow_promotion_codes: true, tax_id_collection: true,
+        success_url: baseUrl() + "app.html?paid=1", cancel_url: baseUrl() + "app.html"
+      });
+      const un = ref.onSnapshot(s => {
+        const { error, url } = s.data() || {};
+        if (error) { un(); toast(error.message); }
+        if (url) { un(); location.assign(url); }
+      });
+    } catch (e) { fail(e); }
+  },
+  async portal() {
+    try {
+      const fn = firebase.app().functions(STRIPE.functionsRegion).httpsCallable("ext-firestore-stripe-payments-createPortalLink");
+      const { data } = await fn({ returnUrl: baseUrl() + "app.html", locale: "auto" });
+      location.assign(data.url);
+    } catch (e) { fail(e); }
+  }
+};
+FORMS.fret = async f => {
+  if (!guard()) return;
+  try {
+    await db.collection("fret").add({
+      companyId: S.cid, companyName: S.company.name,
+      from: f.from.value.trim(), to: f.to.value.trim(), date: f.date.value, weight: f.weight.value.trim(),
+      price: f.price.value ? Number(f.price.value) : 0, contact: f.contact.value.trim(),
+      createdBy: S.user.uid, createdAt: FV.serverTimestamp()
+    });
+    toast(t("f.published")); closeModal();
+  } catch (e) { fail(e); }
+};
+FORMS.settings = async f => {
+  const data = {
+    name: f.name.value.trim(), nif: f.nif.value.trim(), address: f.address.value.trim(), city: f.city.value.trim(),
+    phone: f.phone.value.trim(), email: f.email.value.trim(), color: f.color.value,
+    taxRate: Math.min(30, Math.max(0, Number(f.taxRate.value) || 0))
+  };
+  if (pendingLogo !== undefined) data.logo = pendingLogo;
+  const pub = { name: data.name, city: data.city, phone: data.phone, email: data.email, color: data.color };
+  if (pendingLogo !== undefined) pub.logo = pendingLogo;
+  const b = db.batch();
+  b.update(db.doc("companies/" + S.cid), data);
+  b.update(db.doc("publicProfiles/" + S.cid), pub);
+  try { await b.commit(); toast(t("s.saved")); } catch (e) { fail(e); }
+};
+
+/* =====================================================================
+   DOCUMENTS DE VOYAGE + DeCA
+   - scan (caméra ou fichier) → Firebase Storage, liste par mission
+   - DeCA : PDF + QR généré par /api/deca (Node), affichage QR plein écran
+   - envoi WhatsApp / SMS / email / partage natif
+   - secours : version locale imprimable si le serveur ne répond pas
+   ===================================================================== */
+const DECA_API = "/api/deca";          // fonction serveur (api/deca.js)
+const DECA_TIMEOUT_MS = 25000;
+const MAX_UPLOAD_MB = 20;
+
+Object.assign(I18N.fr, {
+  "nav.documents":"Documents",
+  "d.title":"Documents de voyage","d.sub":"Scannez les documents de chaque trajet et générez le DeCA à présenter en cas de contrôle.","d.empty":"Créez une mission pour y joindre des documents.","d.camera":"📷 Photographier","d.file":"📁 Fichier","d.scan":"Scanner","d.none":"Aucun document scanné","d.open":"Ouvrir","d.send":"Envoyer","d.uploading":"Envoi","d.uploaded":"Document enregistré","d.badType":"Format non accepté (photo ou PDF)","d.tooBig":"Fichier trop lourd (20 Mo max)","d.offlineWait":"Pas de réseau : l'envoi reprendra dès le retour de la connexion.","d.search":"Rechercher (référence, ville, immatriculation)…",
+  "deca.none":"Sans DeCA","deca.generate":"Générer le DeCA","deca.view":"Afficher / Télécharger le DeCA","deca.qr":"Afficher le QR","deca.download":"Télécharger le PDF","deca.regen":"Régénérer","deca.formTitle":"DeCA — Document de contrôle administratif","deca.formHelp":"Données du transport. Le transporteur (nom, NIF, adresse) est pris dans Réglages.","deca.cargador":"Chargeur contractuel (donneur d'ordre)","deca.cargadorNif":"NIF du chargeur","deca.origen":"Origine (lieu de chargement)","deca.destino":"Destination (lieu de livraison)","deca.mercancia":"Nature de la marchandise","deca.peso":"Poids (t)","deca.matricula":"Immatriculation du véhicule","deca.remolque":"Immatriculation de la remorque","deca.fecha":"Date","deca.obs":"Observations","deca.submit":"Générer le DeCA (PDF + QR)","deca.generating":"Génération du DeCA…","deca.ok":"DeCA généré","deca.noNif":"Ajoutez d'abord le NIF de votre entreprise dans Réglages.","deca.failTitle":"Le serveur DeCA n'a pas répondu","deca.failHelp":"Vous pouvez réessayer, ou imprimer tout de suite une version locale dont le QR contient les données du transport.","deca.retry":"Réessayer","deca.local":"Imprimer la version locale","deca.offline":"Pas de connexion internet.","deca.qrHelp":"Montrez ce QR à l'agent : en le scannant, il télécharge le DeCA.","deca.tapClose":"Toucher pour fermer","deca.offlineReady":"Le QR s'affiche aussi sans réseau.",
+  "send.title":"Envoyer","send.phone":"Téléphone (WhatsApp / SMS)","send.phoneHelp":"Avec l'indicatif, ex. +34 612 345 678. Vide = choisir le contact dans WhatsApp.","send.email":"Email","send.whatsapp":"WhatsApp","send.sms":"SMS","send.mail":"Email","send.share":"Partager…","send.copy":"Copier le lien","send.needPhone":"Saisissez un numéro","send.needEmail":"Saisissez un email"
+});
+Object.assign(I18N.es, {
+  "nav.documents":"Documentos",
+  "d.title":"Documentos de viaje","d.sub":"Escanea los documentos de cada viaje y genera el DeCA para presentarlo en una inspección.","d.empty":"Crea un servicio para adjuntarle documentos.","d.camera":"📷 Fotografiar","d.file":"📁 Archivo","d.scan":"Escanear","d.none":"Ningún documento escaneado","d.open":"Abrir","d.send":"Enviar","d.uploading":"Subiendo","d.uploaded":"Documento guardado","d.badType":"Formato no admitido (foto o PDF)","d.tooBig":"Archivo demasiado pesado (máx. 20 MB)","d.offlineWait":"Sin red: la subida se reanudará cuando vuelva la conexión.","d.search":"Buscar (referencia, ciudad, matrícula)…",
+  "deca.none":"Sin DeCA","deca.generate":"Generar el DeCA","deca.view":"Ver / Descargar el DeCA","deca.qr":"Mostrar el QR","deca.download":"Descargar el PDF","deca.regen":"Regenerar","deca.formTitle":"DeCA — Documento de control administrativo","deca.formHelp":"Datos del transporte. El transportista (nombre, NIF, dirección) se toma de Ajustes.","deca.cargador":"Cargador contractual","deca.cargadorNif":"NIF del cargador","deca.origen":"Origen (lugar de carga)","deca.destino":"Destino (lugar de entrega)","deca.mercancia":"Naturaleza de la mercancía","deca.peso":"Peso (t)","deca.matricula":"Matrícula del vehículo","deca.remolque":"Matrícula del remolque","deca.fecha":"Fecha","deca.obs":"Observaciones","deca.submit":"Generar el DeCA (PDF + QR)","deca.generating":"Generando el DeCA…","deca.ok":"DeCA generado","deca.noNif":"Añade primero el NIF de tu empresa en Ajustes.","deca.failTitle":"El servidor DeCA no respondió","deca.failHelp":"Puedes reintentarlo o imprimir ahora una versión local cuyo QR contiene los datos del transporte.","deca.retry":"Reintentar","deca.local":"Imprimir versión local","deca.offline":"Sin conexión a internet.","deca.qrHelp":"Muestre este QR al agente: al escanearlo descarga el DeCA.","deca.tapClose":"Toca para cerrar","deca.offlineReady":"El QR se muestra también sin conexión.",
+  "send.title":"Enviar","send.phone":"Teléfono (WhatsApp / SMS)","send.phoneHelp":"Con el prefijo, p. ej. +34 612 345 678. Vacío = elegir el contacto en WhatsApp.","send.email":"Email","send.whatsapp":"WhatsApp","send.sms":"SMS","send.mail":"Email","send.share":"Compartir…","send.copy":"Copiar enlace","send.needPhone":"Introduce un número","send.needEmail":"Introduce un email"
+});
+
+/* ---------- Outils ---------- */
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + " Mo" : Math.max(1, Math.round(b / 1024)) + " Ko";
+function qrSvg(text) {
+  if (typeof qrcode === "undefined") return `<p class="text-xs p-4 break-all">${esc(text)}</p>`;
+  if (qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs["UTF-8"]) qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+  const qr = qrcode(0, "M"); qr.addData(text); qr.make();
+  return qr.createSvgTag({ cellSize: 8, margin: 3, scalable: true });
+}
+function missionById(id) { return S.missions.find(x => x.id === id); }
+function decaDefaults(m) {
+  const prev = (m.deca && m.deca.data) || {};
+  return {
+    cargador: prev.cargador || m.client || m.shipper || "", cargadorNif: prev.cargadorNif || m.clientNif || "",
+    origen: prev.origen || m.depart || "", destino: prev.destino || m.arrivee || "",
+    mercancia: prev.mercancia || m.goods || "", peso: prev.peso || m.weight || "",
+    matricula: prev.matricula || m.plate || "", remolque: prev.remolque || "",
+    fecha: prev.fecha || m.date || todayStr(), observaciones: prev.observaciones || ""
+  };
+}
+
+/* ---------- Onglet Documents ---------- */
+function viewDocuments() {
+  const q = S.docSearch.toLowerCase();
+  const list = myMissions().filter(m => !q || [m.ref, m.depart, m.arrivee, m.plate, m.client].join(" ").toLowerCase().includes(q));
+  const card = m => {
+    const docs = S.docs.filter(d => d.missionId === m.id);
+    const deca = m.deca
+      ? `<span class="chip chip-delivered">DeCA ✓ ${esc(m.deca.number)}</span>`
+      : `<span class="chip chip-planned">${t("deca.none")}</span>`;
+    const decaBtns = m.deca
+      ? `<button data-act="decaView" data-id="${m.id}" class="btn btn-primary">${t("deca.view")}</button>
+         <button data-act="qrFull" data-id="${m.id}" class="btn">▦ ${t("deca.qr")}</button>
+         <button data-act="sendDeca" data-id="${m.id}" class="btn">${t("d.send")}</button>`
+      : `<button data-act="decaForm" data-id="${m.id}" class="btn btn-primary">${t("deca.generate")}</button>`;
+    const rows = docs.length ? docs.map(d => `
+      <div class="flex items-center justify-between gap-2 py-2 border-t border-line">
+        <div class="min-w-0 flex items-center gap-2">
+          <span class="text-lg">${d.type === "application/pdf" ? "📄" : "🖼️"}</span>
+          <div class="min-w-0"><p class="text-sm truncate">${esc(d.name)}</p><p class="text-[11px] text-dim">${fmtTime(d.createdAt)} · ${fmtSize(d.size || 0)}${d.uploaderName ? " · " + esc(d.uploaderName) : ""}</p></div>
+        </div>
+        <div class="flex gap-1.5 shrink-0">
+          <a href="${esc(d.url)}" target="_blank" rel="noopener" class="btn">${t("d.open")}</a>
+          <button data-act="sendDoc" data-id="${d.id}" class="btn">${t("d.send")}</button>
+          ${isAdmin() || d.uploadedBy === S.user.uid ? `<button data-act="deleteDoc" data-id="${d.id}" class="btn btn-danger">✕</button>` : ""}
+        </div>
+      </div>`).join("") : `<p class="text-xs text-dim pt-2 border-t border-line">${t("d.none")}</p>`;
+    return `<div class="card p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-xs font-mono text-dim">${esc(m.ref)} · ${fmtDay(m.date)}${m.plate ? " · " + esc(m.plate) : ""}</p>
+          <p class="font-medium truncate">${esc(m.depart)} → ${esc(m.arrivee)}</p>
+        </div>${deca}
+      </div>
+      <div class="mt-3 flex flex-wrap gap-2">
+        ${decaBtns}
+        <button data-act="scanCamera" data-id="${m.id}" class="btn">${t("d.camera")}</button>
+        <button data-act="scanFile" data-id="${m.id}" class="btn">${t("d.file")}</button>
+      </div>
+      <div class="mt-3">${rows}</div>
+    </div>`;
+  };
+  return h2(t("d.title")) + `<p class="text-sm text-dim -mt-3 mb-4">${t("d.sub")}</p>
+    <input data-act-input="docSearch" class="inp mb-4" placeholder="${t("d.search")}" value="${esc(S.docSearch)}">` +
+    (list.length ? `<div class="space-y-3">${list.map(card).join("")}</div>` : empty(t("d.empty")));
+}
+
+/* ---------- Scan / envoi des fichiers ---------- */
+function loadImage(file) {
+  return new Promise((res, rej) => { const url = URL.createObjectURL(file), img = new Image(); img.onload = () => { URL.revokeObjectURL(url); res(img); }; img.onerror = rej; img.src = url; });
+}
+async function compressImage(file) {
+  const img = await loadImage(file);                   // le navigateur applique l'orientation EXIF
+  const max = 2200, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = document.createElement("canvas");
+  cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+  const ctx = cv.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.drawImage(img, 0, 0, cv.width, cv.height);
+  const blob = await new Promise(r => cv.toBlob(r, "image/jpeg", 0.82));
+  return blob && blob.size < file.size ? blob : file;
+}
+function pickFiles(missionId, camera) {
+  if (!guard()) return;
+  S.scanMissionId = missionId;
+  const input = $(camera ? "#scan-camera" : "#scan-file");
+  input.value = ""; input.click();
+}
+async function uploadFiles(files) {
+  const m = missionById(S.scanMissionId); if (!m || !files.length) return;
+  if (!navigator.onLine) toast(t("d.offlineWait"));
+  for (const file of files) {
+    try {
+      let blob = file, type = file.type || "", name = (file.name || "scan").replace(/[^\w.\-]+/g, "_").slice(-80);
+      if (type.startsWith("image/")) {
+        blob = await compressImage(file).catch(() => file);
+        if (blob !== file) { type = "image/jpeg"; name = name.replace(/\.[^.]*$/, "") + ".jpg"; }
+      } else if (type !== "application/pdf") { toast(t("d.badType")); continue; }
+      if (blob.size > MAX_UPLOAD_MB * 1048576) { toast(t("d.tooBig")); continue; }
+      const path = `companies/${S.cid}/missions/${m.id}/${Date.now()}-${name}`;
+      const task = storage.ref(path).put(blob, { contentType: type, customMetadata: { missionId: m.id } });
+      await new Promise((res, rej) => task.on("state_changed",
+        s => toast(`${t("d.uploading")} ${name} · ${Math.round(100 * s.bytesTransferred / (s.totalBytes || 1))} %`), rej, res));
+      const url = await task.snapshot.ref.getDownloadURL();
+      await db.collection(`companies/${S.cid}/docs`).add({
+        missionId: m.id, missionRef: m.ref || "", name, type, size: blob.size, path, url,
+        uploadedBy: S.user.uid, uploaderName: S.profile.name || "", createdAt: FV.serverTimestamp()
+      });
+      toast(t("d.uploaded"));
+    } catch (e) { fail(e); }
+  }
+}
+["#scan-camera", "#scan-file"].forEach(sel => $(sel).addEventListener("change", e => uploadFiles(Array.from(e.target.files || []))));
+
+/* ---------- DeCA : formulaire, génération, affichage ---------- */
+function decaForm(m) {
+  S.openMissionId = null; S.openDecaId = null;
+  const d = decaDefaults(m);
+  const f = (k, label, extra = "") => `<div><label class="lbl">${t(label)}</label><input name="${k}" value="${esc(d[k])}" class="inp" ${extra}></div>`;
+  const noNif = !S.company.nif;
+  openModal(`<form data-form="deca" data-id="${m.id}" class="space-y-3">
+    <div class="flex items-center justify-between gap-3"><h2 class="text-lg font-semibold">${t("deca.formTitle")}</h2><button type="button" data-act="closeModal" class="text-dim text-xl leading-none">×</button></div>
+    <p class="text-xs text-dim">${esc(m.ref)} · ${t("deca.formHelp")}</p>
+    ${noNif ? `<p class="text-sm text-amber">${t("deca.noNif")} ${isAdmin() ? `<button type="button" data-act="tab" data-tab="settings" class="underline">${t("nav.settings")}</button>` : ""}</p>` : ""}
+    <div class="grid md:grid-cols-2 gap-3">
+      ${f("cargador", "deca.cargador", 'required maxlength="120"')}${f("cargadorNif", "deca.cargadorNif", 'required maxlength="20" style="text-transform:uppercase"')}
+      ${f("origen", "deca.origen", 'required maxlength="160"')}${f("destino", "deca.destino", 'required maxlength="160"')}
+      ${f("mercancia", "deca.mercancia", 'required maxlength="160"')}${f("peso", "deca.peso", 'maxlength="20" inputmode="decimal"')}
+      ${f("matricula", "deca.matricula", 'required maxlength="20"')}${f("remolque", "deca.remolque", 'maxlength="20"')}
+      ${f("fecha", "deca.fecha", 'type="date" required')}
+    </div>
+    <div><label class="lbl">${t("deca.obs")}</label><textarea name="observaciones" rows="2" maxlength="400" class="inp">${esc(d.observaciones)}</textarea></div>
+    <button class="btn btn-primary w-full" ${noNif ? "disabled" : ""}>${t("deca.submit")}</button>
+  </form>`);
+}
+function readDecaForm(f) {
+  const o = {}; ["cargador","cargadorNif","origen","destino","mercancia","peso","matricula","remolque","fecha","observaciones"].forEach(k => o[k] = f[k].value.trim());
+  return o;
+}
+async function callDecaApi(missionId, data) {
+  const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), DECA_TIMEOUT_MS);
+  try {
+    const token = await S.user.getIdToken();
+    const res = await fetch(DECA_API, { method: "POST", signal: ctrl.signal,
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ missionId, data }) });
+    let j = {}; try { j = await res.json(); } catch (e) {}
+    if (!res.ok) throw new Error(j.message || "HTTP " + res.status);
+    return j;
+  } finally { clearTimeout(timer); }
+}
+FORMS.deca = async f => {
+  if (!guard()) return;
+  const m = missionById(f.dataset.id); if (!m) return;
+  const data = readDecaForm(f);
+  S.decaDraft = { missionId: m.id, data };
+  toast(t("deca.generating"));
+  try {
+    if (!navigator.onLine) throw new Error(t("deca.offline"));
+    const r = await callDecaApi(m.id, data);
+    toast(t("deca.ok"));
+    // la mission se mettra à jour par le snapshot ; on affiche tout de suite le résultat
+    decaView({ ...m, deca: { number: r.number, url: r.url, data } });
+  } catch (e) {
+    const msg = e.name === "AbortError" ? "Timeout" : e.message;
+    openModal(`<div class="space-y-3">
+      <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">${t("deca.failTitle")}</h2><button data-act="closeModal" class="text-dim text-xl leading-none">×</button></div>
+      <p class="text-sm text-amber">${esc(msg)}</p>
+      <p class="text-sm text-dim">${t("deca.failHelp")}</p>
+      <div class="flex flex-wrap gap-2"><button data-act="decaRetry" class="btn btn-primary">${t("deca.retry")}</button><button data-act="decaLocal" class="btn">${t("deca.local")}</button></div>
+    </div>`);
+  }
+};
+function decaView(m) {
+  S.openMissionId = null; S.openDecaId = m.id;
+  const d = m.deca.data || {};
+  const row = (label, v) => v ? `<div><p class="text-[11px] text-dim">${t(label)}</p><p class="text-sm">${esc(v)}</p></div>` : "";
+  openModal(`<div class="flex items-start justify-between gap-3">
+      <div><p class="text-xs font-mono text-dim">${esc(m.ref || "")}</p><h2 class="text-lg font-semibold">DeCA ${esc(m.deca.number)}</h2></div>
+      <button data-act="closeModal" class="text-dim text-xl leading-none">×</button>
+    </div>
+    <div class="mt-4 grid md:grid-cols-[220px_1fr] gap-5 items-start">
+      <button data-act="qrFull" data-id="${m.id}" class="qr-box bg-white rounded-lg p-2 w-full max-w-[220px] mx-auto">${qrSvg(m.deca.url)}</button>
+      <div class="grid grid-cols-2 gap-3">
+        ${row("deca.cargador", d.cargador)}${row("deca.cargadorNif", d.cargadorNif)}
+        ${row("deca.origen", d.origen)}${row("deca.destino", d.destino)}
+        ${row("deca.mercancia", d.mercancia)}${row("deca.peso", d.peso ? d.peso + " t" : "")}
+        ${row("deca.matricula", d.matricula)}${row("deca.remolque", d.remolque)}
+      </div>
+    </div>
+    <p class="text-xs text-dim mt-3">${t("deca.qrHelp")} ${t("deca.offlineReady")}</p>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <a href="${esc(m.deca.url)}" target="_blank" rel="noopener" class="btn btn-primary">⬇ ${t("deca.download")}</a>
+      <button data-act="qrFull" data-id="${m.id}" class="btn">▦ ${t("deca.qr")}</button>
+      <button data-act="sendDeca" data-id="${m.id}" class="btn">${t("d.send")}</button>
+      <button data-act="decaForm" data-id="${m.id}" class="btn">${t("deca.regen")}</button>
+    </div>`);
+}
+function refreshDecaModal() {
+  if (!S.openDecaId) return;
+  const m = missionById(S.openDecaId);
+  if (m && m.deca) decaView(m);
+}
+
+/* QR plein écran, fond blanc, écran maintenu allumé */
+let qrLock = null;
+async function qrFull(m) {
+  const d = (m.deca && m.deca.data) || {};
+  const el = $("#qr-full");
+  el.innerHTML = `<div class="w-full max-w-[min(86vw,62vh)]">${qrSvg(m.deca.url)}</div>
+    <p class="mt-4 text-2xl font-bold font-mono">${esc(m.deca.number)}</p>
+    <p class="mt-1 text-lg font-semibold">${esc(d.matricula || "")}${d.remolque ? " · " + esc(d.remolque) : ""}</p>
+    <p class="text-base">${esc(d.origen || "")} → ${esc(d.destino || "")}</p>
+    <p class="mt-6 text-sm text-gray-500">${t("deca.tapClose")}</p>`;
+  el.classList.remove("hidden");
+  try { if (navigator.wakeLock) qrLock = await navigator.wakeLock.request("screen"); } catch (e) {}
+}
+function qrClose() {
+  $("#qr-full").classList.add("hidden");
+  if (qrLock) { qrLock.release().catch(() => {}); qrLock = null; }
+}
+
+/* Version locale imprimable (secours sans serveur) : le QR contient les données */
+function printDecaLocal(m, d) {
+  const c = S.company;
+  const payload = ["DeCA " + (m.ref || ""), "Cargador: " + d.cargador + " (" + d.cargadorNif + ")", "Transportista: " + c.name + " (" + (c.nif || "") + ")",
+    "Origen: " + d.origen, "Destino: " + d.destino, "Mercancia: " + d.mercancia + (d.peso ? " - " + d.peso + " t" : ""),
+    "Matricula: " + d.matricula + (d.remolque ? " / " + d.remolque : ""), "Fecha: " + d.fecha].join("\n");
+  const box = (n, l, v) => `<div class="box"><div class="n">${n}. ${l}</div><div class="v">${esc(v || "—")}</div></div>`;
+  printDoc("DeCA " + (m.ref || ""), `
+    <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px">
+      <div><h1>DOCUMENTO DE CONTROL ADMINISTRATIVO</h1><div class="muted">DeCA · Orden FOM/2861/2012 · ${esc(m.ref || "")}</div></div>
+      <div style="width:130px">${qrSvg(payload)}</div>
+    </div>
+    <div class="grid">
+      ${box(1, "Cargador contractual", d.cargador)}${box(2, "NIF cargador", d.cargadorNif)}
+      ${box(3, "Transportista efectivo", [c.name, [c.address, c.city].filter(Boolean).join(", ")].filter(Boolean).join("\n"))}${box(4, "NIF transportista", c.nif)}
+      ${box(5, "Origen", d.origen)}${box(6, "Destino", d.destino)}
+      ${box(7, "Mercancía", d.mercancia)}${box(8, "Peso", d.peso ? d.peso + " t" : "")}
+      ${box(9, "Matrícula vehículo", d.matricula)}${box(10, "Matrícula remolque", d.remolque)}
+      ${box(11, "Fecha", d.fecha)}${box(12, "Observaciones", d.observaciones)}
+    </div>`);
+}
+
+/* ---------- Envoi : WhatsApp / SMS / email / partage ---------- */
+function normPhone(p) {
+  let n = String(p || "").replace(/[^\d+]/g, "");
+  if (n.startsWith("+")) n = n.slice(1); else if (n.startsWith("00")) n = n.slice(2); else if (n.length === 9) n = "34" + n;
+  return n;
+}
+function openSend(title, text, url, email = "") {
+  S.sendPayload = { title, text, url };
+  let phone = ""; try { phone = localStorage.getItem("bd-last-phone") || ""; } catch (e) {}
+  S.openMissionId = null; S.openDecaId = null;
+  openModal(`<div class="space-y-3">
+    <div class="flex items-center justify-between"><h2 class="text-lg font-semibold">${t("send.title")} · ${esc(title)}</h2><button data-act="closeModal" class="text-dim text-xl leading-none">×</button></div>
+    <div><label class="lbl">${t("send.phone")}</label><input id="send-phone" type="tel" value="${esc(phone)}" placeholder="+34 612 345 678" class="inp"><p class="text-[11px] text-dim mt-1">${t("send.phoneHelp")}</p></div>
+    <div class="flex flex-wrap gap-2"><button data-act="sendWa" class="btn btn-primary">${t("send.whatsapp")}</button><button data-act="sendSms" class="btn">${t("send.sms")}</button></div>
+    <div><label class="lbl">${t("send.email")}</label><input id="send-email" type="email" value="${esc(email)}" class="inp"></div>
+    <button data-act="sendMail" class="btn">${t("send.mail")}</button>
+    <div class="flex flex-wrap gap-2 pt-2 border-t border-line">
+      ${navigator.share ? `<button data-act="sendShare" class="btn">${t("send.share")}</button>` : ""}
+      <button data-act="copyText" data-text="${esc(url)}" class="btn">${t("send.copy")}</button>
+    </div>
+  </div>`);
+}
+const sendMsg = () => S.sendPayload.text + "\n" + S.sendPayload.url;
+function savePhone(v) { try { localStorage.setItem("bd-last-phone", v); } catch (e) {} }
+
+Object.assign(ACT, {
+  scanCamera: d => pickFiles(d.id, true),
+  scanFile: d => pickFiles(d.id, false),
+  async deleteDoc(d) {
+    const doc = S.docs.find(x => x.id === d.id); if (!doc || !confirm(t("c.confirmDelete"))) return;
+    try {
+      await storage.ref(doc.path).delete().catch(e => { if (e.code !== "storage/object-not-found") throw e; });
+      await db.doc(`companies/${S.cid}/docs/${doc.id}`).delete();
+    } catch (e) { fail(e); }
+  },
+  sendDoc(d) { const doc = S.docs.find(x => x.id === d.id); if (doc) openSend(doc.name, `${doc.name} — ${doc.missionRef}`, doc.url); },
+  decaOpen(d) { const m = missionById(d.id); if (!m) return; m.deca ? decaView(m) : (guard() && decaForm(m)); },
+  decaForm(d) { const m = missionById(d.id); if (m && guard()) decaForm(m); },
+  decaView(d) { const m = missionById(d.id); if (m && m.deca) decaView(m); },
+  decaRetry() { const dr = S.decaDraft; const m = dr && missionById(dr.missionId); if (m) { decaForm({ ...m, deca: { ...(m.deca || {}), data: dr.data } }); } },
+  decaLocal() { const dr = S.decaDraft; const m = dr && missionById(dr.missionId); if (m) printDecaLocal(m, dr.data); },
+  qrFull(d) { const m = missionById(d.id) || (S.openDecaId && missionById(S.openDecaId)); if (m && m.deca) qrFull(m); },
+  qrClose,
+  sendDeca(d) {
+    const m = missionById(d.id); if (!m || !m.deca) return;
+    const x = m.deca.data || {};
+    const text = `DeCA ${m.deca.number}\n${x.origen} → ${x.destino}\nMatrícula: ${x.matricula}${x.remolque ? " / " + x.remolque : ""}\nFecha: ${x.fecha}`;
+    openSend("DeCA " + m.deca.number, text, m.deca.url, m.clientEmail || "");
+  },
+  sendWa() {
+    const p = normPhone($("#send-phone").value); if (p) savePhone($("#send-phone").value.trim());
+    window.open(`https://wa.me/${p}?text=${encodeURIComponent(sendMsg())}`, "_blank", "noopener");
+  },
+  sendSms() {
+    const raw = $("#send-phone").value.trim(); if (!raw) return toast(t("send.needPhone"));
+    savePhone(raw);
+    location.href = `sms:${encodeURIComponent(raw.replace(/\s+/g, ""))}${isIOS ? "&" : "?"}body=${encodeURIComponent(sendMsg())}`;
+  },
+  sendMail() {
+    const em = $("#send-email").value.trim(); if (!em) return toast(t("send.needEmail"));
+    location.href = `mailto:${encodeURIComponent(em)}?subject=${encodeURIComponent(S.sendPayload.title)}&body=${encodeURIComponent(sendMsg())}`;
+  },
+  async sendShare() { try { await navigator.share({ title: S.sendPayload.title, text: S.sendPayload.text, url: S.sendPayload.url }); } catch (e) {} }
+});
+document.addEventListener("input", e => {
+  if (e.target.dataset.actInput === "docSearch") {
+    S.docSearch = e.target.value; const pos = e.target.selectionStart; render();
+    const inp = document.querySelector('[data-act-input="docSearch"]'); inp.focus(); inp.setSelectionRange(pos, pos);
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#qr-full").classList.contains("hidden")) qrClose(); });
+
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  if (el.type === "checkbox") { ACT[el.dataset.act] && ACT[el.dataset.act](el.dataset, el, e); return; }
+  const fn = ACT[el.dataset.act]; if (!fn) return;
+  e.preventDefault(); fn(el.dataset, el, e);
+});
+document.addEventListener("submit", e => {
+  const f = e.target, fn = FORMS[f.dataset.form]; if (!fn) return;
+  e.preventDefault();
+  const btn = f.querySelector("button:not([type=button])"); if (btn) btn.disabled = true;
+  Promise.resolve(fn(f)).finally(() => { if (btn && document.body.contains(btn)) btn.disabled = false; });
+});
+document.addEventListener("input", e => {
+  if (e.target.dataset.actInput === "fretSearch") {
+    S.fretSearch = e.target.value; const pos = e.target.selectionStart; render();
+    const inp = document.querySelector('[data-act-input="fretSearch"]'); inp.focus(); inp.setSelectionRange(pos, pos);
+  }
+});
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+boot();
+</script>
+</body>
+</html>

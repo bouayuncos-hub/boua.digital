@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Bouadigital — Le logiciel des transporteurs</title>
+<meta name="description" content="Bouadigital : missions, e-CMR, suivi GPS, facturation et bourse de fret pour transporteurs indépendants et petites flottes. Essai gratuit 30 jours." />
+<meta property="og:title" content="Bouadigital - Le logiciel des transporteurs" />
+<meta property="og:description" content="Missions, e-CMR imprimable, suivi GPS client, facturation automatique et bourse de fret. Essai gratuit 30 jours, sans carte bancaire." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#0a1330" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Bouadigital" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%231e3a8a'/%3E%3Cpath d='M120 180h180v140H120zM300 230l70 20v70h-70z' fill='%2360a5fa'/%3E%3Ccircle cx='180' cy='360' r='36' fill='%2310b981'/%3E%3Ccircle cx='340' cy='360' r='36' fill='%2310b981'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#0a1330', panel: '#101b3f', line: '#23315c', brand: '#1e3a8a',
+          amber: '#f5a524', emerald: '#10b981', ink: '#eef2ff', dim: '#94a3c4'
+        },
+        fontFamily: {
+          sans: ['Plus Jakarta Sans', 'sans-serif'],
+          mono: ['JetBrains Mono', 'monospace']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background:#0a1330; color:#eef2ff; }
+  .road-line{ height:1px; background-image:repeating-linear-gradient(90deg,#334472 0 14px,transparent 14px 26px); }
+  .dot-run{ animation:run 4.5s linear infinite; }
+  @keyframes run{ 0%{ left:2%; } 100%{ left:96%; } }
+  @media (prefers-reduced-motion: reduce){ .dot-run{ animation:none; left:50%; } }
+  .tabpane{ animation:rise .35s ease both; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+  .focus-ring:focus-visible{ outline:2px solid #f5a524; outline-offset:3px; }
+</style>
+</head>
+<body class="antialiased font-sans">
+
+<!-- NAV -->
+<header class="sticky top-0 z-40 backdrop-blur bg-bg/80 border-b border-line">
+  <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2 focus-ring">
+      <svg width="30" height="30" viewBox="0 0 512 512"><rect width="512" height="512" rx="128" fill="#1e3a8a"/><path d="M120 180h180v140H120zM300 230l70 20v70h-70z" fill="#60a5fa"/><circle cx="180" cy="360" r="36" fill="#10b981"/><circle cx="340" cy="360" r="36" fill="#10b981"/></svg>
+      <span class="font-semibold tracking-tight text-lg">Bouadigital</span>
+    </a>
+    <nav class="hidden lg:flex items-center gap-6 text-sm text-dim">
+      <a href="#espaces" data-i18n="nav.espaces" class="hover:text-ink transition-colors focus-ring">Espaces</a>
+      <a href="#kit" data-i18n="nav.kit" class="hover:text-ink transition-colors focus-ring">Fonctionnalités</a>
+      <a href="#fret" data-i18n="nav.fret" class="hover:text-ink transition-colors focus-ring">Bourse de fret</a>
+      <a href="#tarifs" data-i18n="nav.tarifs" class="hover:text-ink transition-colors focus-ring">Tarifs</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <button id="lang-toggle" class="text-xs font-mono border border-line rounded-md px-2.5 py-1.5 text-dim hover:text-ink transition focus-ring" data-lang="fr">FR</button>
+      <button id="install-btn" class="hidden items-center gap-1.5 text-sm border border-line rounded-md px-3.5 py-2 text-ink hover:border-dim transition focus-ring">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14"/></svg>
+        <span data-i18n="nav.install">Installer</span>
+      </button>
+      <a href="app.html" data-i18n="nav.login" class="hidden sm:inline text-sm text-dim hover:text-ink transition focus-ring">Connexion</a>
+      <a href="app.html?signup=1" data-i18n="nav.cta" class="text-sm font-medium bg-amber text-bg px-4 py-2 rounded-md hover:brightness-110 transition focus-ring">Essai gratuit</a>
+    </div>
+  </div>
+</header>
+
+<!-- iOS install instructions -->
+<div id="ios-install-sheet" class="hidden fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 px-5">
+  <div class="bg-panel border border-line rounded-xl p-6 max-w-sm w-full mb-6 md:mb-0">
+    <p class="font-medium" data-i18n="ios.title">Installer Bouadigital</p>
+    <p class="text-dim text-sm mt-2 leading-relaxed">
+      <span data-i18n="ios.pre">Sur iPhone ou iPad : appuyez sur </span><span class="text-ink" data-i18n="ios.share">Partager</span><span data-i18n="ios.mid"> en bas de Safari, puis choisissez </span><span class="text-ink" data-i18n="ios.addHome">« Sur l'écran d'accueil »</span><span data-i18n="ios.end">.</span>
+    </p>
+    <button id="ios-install-close" data-i18n="ios.close" class="mt-5 text-sm border border-line rounded-md px-4 py-2 hover:border-dim transition focus-ring w-full">Compris</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto px-5 pt-16 pb-14 grid md:grid-cols-[1.15fr_1fr] gap-12 items-center">
+  <div>
+    <p class="text-xs font-mono text-amber mb-4" data-i18n="hero.badge">Pour transporteurs indépendants et petites flottes</p>
+    <h1 class="text-4xl md:text-5xl font-semibold leading-[1.08] tracking-tight">
+      <span data-i18n="hero.h1a">Le fret voyage,</span><br class="hidden md:block"> <span data-i18n="hero.h1b">vous suivez chaque kilomètre.</span>
+    </h1>
+    <p class="mt-5 text-dim text-lg leading-relaxed max-w-md" data-i18n="hero.sub">
+      Missions, lettre de voiture e-CMR, suivi GPS pour vos clients et factures automatiques : toute votre activité de transport dans une seule application, sur le téléphone comme au bureau.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center gap-4">
+      <a href="app.html?signup=1" data-i18n="hero.cta1" class="bg-amber text-bg font-medium px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">Commencer l'essai gratuit</a>
+      <a href="#tarifs" data-i18n="hero.cta2" class="text-ink border border-line px-6 py-3 rounded-md hover:border-dim transition focus-ring">Voir les tarifs</a>
+    </div>
+    <p class="mt-6 text-sm text-dim" data-i18n="hero.note">30 jours gratuits · Sans carte bancaire · Sans engagement</p>
+  </div>
+
+  <!-- live shipment mock -->
+  <div class="bg-panel border border-line rounded-xl p-5">
+    <div class="flex items-center justify-between text-xs text-dim font-mono">
+      <span>M-20261019-482</span>
+      <span class="inline-flex items-center gap-1.5 text-emerald"><span class="w-1.5 h-1.5 rounded-full bg-emerald animate-pulse"></span><span data-i18n="hero.status">En route</span></span>
+    </div>
+    <div class="mt-6 relative h-8">
+      <div class="road-line absolute left-0 right-0 top-1/2"></div>
+      <div class="absolute top-1/2 -translate-y-1/2 dot-run" style="left:2%">
+        <div class="w-3 h-3 rounded-full bg-amber shadow-[0_0_0_4px_rgba(245,165,36,0.18)]"></div>
+      </div>
+      <span class="absolute left-0 -bottom-1 text-[11px] text-dim">Toledo</span>
+      <span class="absolute right-0 -bottom-1 text-[11px] text-dim">Lyon</span>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-4 font-mono text-sm">
+      <div><p class="text-dim text-xs mb-1" data-i18n="hero.labelPosition">Position</p><p>40.03N · 3.92W</p></div>
+      <div><p class="text-dim text-xs mb-1" data-i18n="hero.labelEta">ETA</p><p>2j 04h</p></div>
+      <div><p class="text-dim text-xs mb-1" data-i18n="hero.labelDriver">Chauffeur</p><p>M. Traoré</p></div>
+      <div><p class="text-dim text-xs mb-1" data-i18n="hero.labelInvoice">Facture</p><p class="text-emerald" data-i18n="hero.invoiceAuto">auto à la livraison</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="road-line max-w-6xl mx-auto"></div>
+
+<!-- ESPACES -->
+<section id="espaces" class="max-w-6xl mx-auto px-5 py-16">
+  <h2 class="text-2xl font-semibold tracking-tight" data-i18n="espaces.title">Trois espaces, une seule plateforme</h2>
+  <p class="text-dim mt-2 max-w-lg" data-i18n="espaces.sub">Chaque profil retrouve exactement ce dont il a besoin, rien de plus.</p>
+
+  <div class="mt-8 flex gap-2 border-b border-line overflow-x-auto" role="tablist" aria-label="Espaces Bouadigital">
+    <button data-tab="chauffeur" data-i18n="espaces.tabDriver" class="tab-btn whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 border-amber text-ink focus-ring" role="tab" aria-selected="true">App Chauffeur</button>
+    <button data-tab="client" data-i18n="espaces.tabClient" class="tab-btn whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-dim hover:text-ink focus-ring" role="tab" aria-selected="false">Page Client</button>
+    <button data-tab="admin" data-i18n="espaces.tabAdmin" class="tab-btn whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-dim hover:text-ink focus-ring" role="tab" aria-selected="false">Bureau</button>
+  </div>
+
+  <div class="mt-8">
+    <div data-panel="chauffeur" class="tabpane grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <h3 class="font-semibold text-lg" data-i18n="driver.title">Missions et e-CMR en poche</h3>
+        <p class="text-dim mt-3 leading-relaxed" data-i18n="driver.body">Le chauffeur voit ses missions, partage sa position pendant le trajet et fait signer le client sur l'écran à la livraison.</p>
+        <ul class="mt-4 space-y-2 text-sm text-dim">
+          <li data-i18n="driver.li1">Missions du jour et documents de fret</li>
+          <li data-i18n="driver.li2">Signature du destinataire sur le téléphone</li>
+          <li data-i18n="driver.li3">Partage de la position GPS en un bouton</li>
+        </ul>
+      </div>
+      <div class="bg-panel border border-line rounded-xl p-5 font-mono text-sm">
+        <p class="text-dim text-xs mb-3" data-i18n="driver.missionActive">Mission active</p>
+        <p>Toledo → Lyon</p>
+        <p class="text-dim mt-1" data-i18n="driver.weight">18,4 t · Remorque frigo</p>
+        <div class="mt-4 h-px bg-line"></div>
+        <p class="mt-4 text-dim text-xs" data-i18n="driver.nextStep">Prochaine étape</p>
+        <p data-i18n="driver.customs">Frontière La Jonquera · 06:30</p>
+      </div>
+    </div>
+
+    <div data-panel="client" class="tabpane hidden grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <h3 class="font-semibold text-lg" data-i18n="client.title">Une page à votre nom pour vos clients</h3>
+        <p class="text-dim mt-3 leading-relaxed" data-i18n="client.body">Chaque transporteur reçoit sa page publique, à son logo et ses couleurs : vos clients y suivent leur livraison avec un code et vous envoient leurs demandes de devis.</p>
+        <ul class="mt-4 space-y-2 text-sm text-dim">
+          <li data-i18n="client.li1">Suivi de la livraison par code</li>
+          <li data-i18n="client.li2">Formulaire de devis relié à votre bureau</li>
+          <li data-i18n="client.li3">En français et en espagnol</li>
+        </ul>
+      </div>
+      <div class="bg-panel border border-line rounded-xl p-5 font-mono text-sm">
+        <p class="text-dim text-xs mb-3" data-i18n="client.trackingLabel">Suivi expédition</p>
+        <p>K7Q2-M9XA-4P</p>
+        <p class="text-emerald mt-1" data-i18n="client.statusOnTime">En route — à l'heure</p>
+        <div class="mt-4 h-px bg-line"></div>
+        <p class="mt-4 text-dim text-xs" data-i18n="client.lastUpdate">Dernière mise à jour</p>
+        <p data-i18n="client.minutesAgo">Il y a 6 min</p>
+      </div>
+    </div>
+
+    <div data-panel="admin" class="tabpane hidden grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <h3 class="font-semibold text-lg" data-i18n="admin.title">Toute votre activité, une vue</h3>
+        <p class="text-dim mt-3 leading-relaxed" data-i18n="admin.body">Créez les missions, assignez vos chauffeurs, suivez le chiffre du mois et les factures impayées, sans tableur.</p>
+        <ul class="mt-4 space-y-2 text-sm text-dim">
+          <li data-i18n="admin.li1">Tableau de bord des livraisons en cours</li>
+          <li data-i18n="admin.li2">Factures numérotées avec IVA</li>
+          <li data-i18n="admin.li3">Invitation de vos chauffeurs par code</li>
+        </ul>
+      </div>
+      <div class="bg-panel border border-line rounded-xl p-5 font-mono text-sm grid grid-cols-2 gap-4">
+        <div><p class="text-dim text-xs mb-1" data-i18n="admin.k1">En cours</p><p class="text-xl">4</p></div>
+        <div><p class="text-dim text-xs mb-1" data-i18n="admin.k2">Livrées ce mois</p><p class="text-xl">27</p></div>
+        <div><p class="text-dim text-xs mb-1" data-i18n="admin.k3">CA du mois (HT)</p><p class="text-xl text-emerald">31 480 €</p></div>
+        <div><p class="text-dim text-xs mb-1" data-i18n="admin.k4">Impayés</p><p class="text-xl text-amber">2 310 €</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- E-CMR -->
+<section id="ecmr" class="max-w-6xl mx-auto px-5 py-16 grid md:grid-cols-[1fr_1.1fr] gap-10 items-center">
+  <div class="bg-panel border border-line rounded-xl p-6 font-mono text-xs leading-relaxed order-2 md:order-1">
+    <p class="text-dim" data-i18n="ecmr.docTitle">LETTRE DE VOITURE — CMR</p>
+    <div class="mt-4 h-px bg-line"></div>
+    <p class="mt-4 text-dim" data-i18n="ecmr.sender">1. Expéditeur</p>
+    <p>Conservas Toledo S.L. — Toledo</p>
+    <p class="mt-3 text-dim" data-i18n="ecmr.recipient">2. Destinataire</p>
+    <p>Distribution Rhône SARL — Lyon</p>
+    <p class="mt-3 text-dim" data-i18n="ecmr.carrier">16. Transporteur</p>
+    <p data-i18n="ecmr.yourCompany">Votre entreprise</p>
+    <p class="mt-3 text-dim" data-i18n="ecmr.signature">24. Signature destinataire</p>
+    <p class="text-emerald" data-i18n="ecmr.signed">signée sur l'application</p>
+  </div>
+  <div class="order-1 md:order-2">
+    <h2 class="text-2xl font-semibold tracking-tight" data-i18n="ecmr.title">Lettre de voiture remplie toute seule</h2>
+    <p class="text-dim mt-3 leading-relaxed max-w-md" data-i18n="ecmr.body">Les informations de la mission remplissent la CMR automatiquement. Imprimez-la ou enregistrez-la en PDF, avec la signature du destinataire une fois livrée.</p>
+  </div>
+</section>
+
+<div class="road-line max-w-6xl mx-auto"></div>
+
+<!-- SUIVI GPS -->
+<section id="suivi" class="max-w-6xl mx-auto px-5 py-16">
+  <h2 class="text-2xl font-semibold tracking-tight" data-i18n="suivi.title">Géolocalisation pendant le trajet</h2>
+  <p class="text-dim mt-2 max-w-lg" data-i18n="suivi.body">Le téléphone du chauffeur transmet sa position ; le client la voit sur votre page, sans vous appeler.</p>
+  <div class="mt-8 bg-panel border border-line rounded-xl p-6">
+    <div class="relative h-10">
+      <div class="road-line absolute left-0 right-0 top-1/2"></div>
+      <div class="absolute top-1/2 -translate-y-1/2" style="left:6%"><div class="w-2.5 h-2.5 rounded-full bg-ink"></div></div>
+      <div class="absolute top-1/2 -translate-y-1/2" style="left:34%"><div class="w-2.5 h-2.5 rounded-full bg-ink"></div></div>
+      <div class="absolute top-1/2 -translate-y-1/2 dot-run"><div class="w-3.5 h-3.5 rounded-full bg-amber"></div></div>
+      <div class="absolute top-1/2 -translate-y-1/2" style="left:92%"><div class="w-2.5 h-2.5 rounded-full bg-ink"></div></div>
+    </div>
+    <div class="mt-5 flex justify-between text-xs text-dim font-mono">
+      <span>Toledo</span><span>Madrid</span><span>La Jonquera</span><span>Lyon</span>
+    </div>
+  </div>
+</section>
+
+<div class="road-line max-w-6xl mx-auto"></div>
+
+<!-- FONCTIONNALITÉS -->
+<section id="kit" class="max-w-6xl mx-auto px-5 py-16">
+  <h2 class="text-2xl font-semibold tracking-tight" data-i18n="kit.title">Tout ce qu'il faut pour rouler</h2>
+  <p class="text-dim mt-2 max-w-lg" data-i18n="kit.sub">Inclus dans tous les abonnements.</p>
+  <div class="mt-8 grid md:grid-cols-2">
+    <div class="border-t border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item1.title">Missions & planning</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item1.desc">Créez, assignez et suivez chaque transport, du chargement à la livraison.</p></div>
+    <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item2.title">CMR automatique</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item2.desc">Lettre de voiture préremplie, imprimable ou en PDF, avec signature.</p></div>
+    <div class="border-t border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item3.title">Suivi GPS client</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item3.desc">Position du camion partagée avec votre client par un simple code.</p></div>
+    <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item4.title">Facturation automatique</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item4.desc">Facture numérotée créée à la livraison, avec IVA, suivi payé / impayé.</p></div>
+    <div class="border-t border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item5.title">Page client à vos couleurs</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item5.desc">Votre logo, vos coordonnées, votre formulaire de devis.</p></div>
+    <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item6.title">Devis entrants</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item6.desc">Les demandes arrivent dans votre bureau et deviennent une mission en un clic.</p></div>
+    <div class="border-t border-b border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item7.title">Équipe & chauffeurs</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item7.desc">Invitez vos chauffeurs par code : chacun ne voit que ses missions.</p></div>
+    <div class="border-t border-b border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item8.title">Bourse de fret</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item8.desc">Publiez et trouvez des chargements pour éviter les retours à vide.</p></div>
+  </div>
+  <p class="mt-6 text-sm text-dim"><span class="text-amber font-mono text-xs mr-2" data-i18n="kit.soonLabel">BIENTÔT</span><span data-i18n="kit.soon">Assistant IA, export comptable, application Android native.</span></p>
+</section>
+
+<!-- BOURSE DE FRET -->
+<section id="fret" class="max-w-6xl mx-auto px-5 py-16">
+  <h2 class="text-2xl font-semibold tracking-tight" data-i18n="fret.title">Bourse de fret entre abonnés</h2>
+  <p class="text-dim mt-2 max-w-lg" data-i18n="fret.sub">Les retours à vide deviennent des trajets rentables, partagés entre transporteurs Bouadigital.</p>
+  <div class="mt-8 bg-panel border border-line rounded-xl overflow-hidden">
+    <div class="grid grid-cols-4 text-xs text-dim px-5 py-3 border-b border-line font-mono">
+      <span data-i18n="fret.colTrajet">Trajet</span><span data-i18n="fret.colPoids">Poids</span><span data-i18n="fret.colDepart">Départ</span><span data-i18n="fret.colPrix">Prix</span>
+    </div>
+    <div class="grid grid-cols-4 items-center px-5 py-3.5 border-b border-line text-sm font-mono"><span>Madrid → Milan</span><span>14 t</span><span>17/11</span><span class="text-emerald">840 €</span></div>
+    <div class="grid grid-cols-4 items-center px-5 py-3.5 border-b border-line text-sm font-mono"><span>Lyon → Toledo</span><span>9 t</span><span>18/11</span><span class="text-emerald">610 €</span></div>
+    <div class="grid grid-cols-4 items-center px-5 py-3.5 text-sm font-mono"><span>Sevilla → Marseille</span><span>22 t</span><span>19/11</span><span class="text-emerald">1 120 €</span></div>
+  </div>
+</section>
+
+<div class="road-line max-w-6xl mx-auto"></div>
+
+<!-- TARIFS -->
+<section id="tarifs" class="max-w-6xl mx-auto px-5 py-16">
+  <h2 class="text-2xl font-semibold tracking-tight" data-i18n="pricing.title">Un prix simple, sans surprise</h2>
+  <p class="text-dim mt-2 max-w-lg" data-i18n="pricing.sub">Commencez gratuitement. Choisissez une formule seulement si l'outil vous fait gagner du temps.</p>
+  <div class="mt-8 grid md:grid-cols-3 gap-4">
+    <div class="bg-panel border border-line rounded-xl p-6 flex flex-col">
+      <p class="font-medium" data-i18n="pricing.trial.name">Essai</p>
+      <p class="mt-3"><span class="text-3xl font-semibold">0 €</span> <span class="text-dim text-sm" data-i18n="pricing.trial.per">pendant 30 jours</span></p>
+      <ul class="mt-5 space-y-2 text-sm text-dim flex-1">
+        <li data-i18n="pricing.trial.f1">Toutes les fonctionnalités</li>
+        <li data-i18n="pricing.trial.f2">Jusqu'à 3 chauffeurs</li>
+        <li data-i18n="pricing.trial.f3">Sans carte bancaire</li>
+      </ul>
+      <a href="app.html?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm border border-line rounded-md py-2.5 hover:border-dim transition focus-ring">Commencer</a>
+    </div>
+    <div class="bg-panel border border-line rounded-xl p-6 flex flex-col">
+      <p class="font-medium" data-i18n="pricing.solo.name">Solo</p>
+      <p class="mt-3"><span class="text-3xl font-semibold">49 €</span> <span class="text-dim text-sm" data-i18n="pricing.per">/ mois HT</span></p>
+      <ul class="mt-5 space-y-2 text-sm text-dim flex-1">
+        <li data-i18n="pricing.solo.f1">Pour le transporteur autonome</li>
+        <li data-i18n="pricing.solo.f2">1 utilisateur, missions illimitées</li>
+        <li data-i18n="pricing.solo.f3">CMR, GPS, factures, page client</li>
+      </ul>
+      <a href="app.html?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm border border-line rounded-md py-2.5 hover:border-dim transition focus-ring">Commencer</a>
+    </div>
+    <div class="bg-brand border border-brand rounded-xl p-6 flex flex-col">
+      <p class="font-medium"><span data-i18n="pricing.flotte.name">Flotte</span> <span class="ml-2 text-[11px] font-mono bg-amber text-bg px-2 py-0.5 rounded" data-i18n="pricing.popular">POPULAIRE</span></p>
+      <p class="mt-3"><span class="text-3xl font-semibold">129 €</span> <span class="text-blue-100/80 text-sm" data-i18n="pricing.per">/ mois HT</span></p>
+      <ul class="mt-5 space-y-2 text-sm text-blue-100/80 flex-1">
+        <li data-i18n="pricing.flotte.f1">Jusqu'à 10 chauffeurs</li>
+        <li data-i18n="pricing.flotte.f2">Tout le contenu de Solo</li>
+        <li data-i18n="pricing.flotte.f3">Missions assignées par chauffeur</li>
+      </ul>
+      <a href="app.html?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm bg-amber text-bg font-medium rounded-md py-2.5 hover:brightness-110 transition focus-ring">Commencer</a>
+    </div>
+  </div>
+  <p class="mt-4 text-xs text-dim" data-i18n="pricing.note">Paiement sécurisé par carte via Stripe. Résiliable à tout moment depuis votre espace.</p>
+</section>
+
+<!-- CTA FINAL -->
+<section class="max-w-6xl mx-auto px-5 pb-20">
+  <div class="bg-brand rounded-xl px-8 py-10 md:flex items-center justify-between gap-8">
+    <div>
+      <h2 class="text-2xl font-semibold tracking-tight" data-i18n="final.title">Prêt en 5 minutes</h2>
+      <p class="text-blue-100/80 mt-2 max-w-md" data-i18n="final.body">Créez votre compte, ajoutez votre première mission et envoyez le lien de suivi à votre client.</p>
+    </div>
+    <a href="app.html?signup=1" data-i18n="final.cta" class="mt-6 md:mt-0 inline-block shrink-0 bg-amber text-bg font-medium px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">Créer mon compte gratuit</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-line">
+  <div class="max-w-6xl mx-auto px-5 py-10 text-sm text-dim flex flex-col md:flex-row justify-between gap-4">
+    <div>
+      <p class="text-ink font-medium">Bouadigital</p>
+      <p class="mt-1" data-i18n="footer.tagline">Le logiciel des transporteurs indépendants et petites flottes</p>
+      <p class="mt-1">Yuncos (Toledo) · bouayuncos@gmail.com</p>
+    </div>
+    <div class="flex flex-col items-start md:items-end gap-2">
+      <a href="app.html" data-i18n="nav.login" class="hover:text-ink transition-colors focus-ring">Connexion</a>
+      <a href="mailto:bouayuncos@gmail.com" data-i18n="footer.contact" class="hover:text-ink transition-colors focus-ring">Nous contacter</a>
+    </div>
+  </div>
+</footer>
+
+<!-- LANGUES — FR (défaut), ES, EN -->
+<script>
+  const translations = {
+    fr: {
+      "nav.espaces":"Espaces","nav.kit":"Fonctionnalités","nav.fret":"Bourse de fret","nav.tarifs":"Tarifs","nav.login":"Connexion","nav.cta":"Essai gratuit","nav.install":"Installer",
+      "ios.title":"Installer Bouadigital","ios.pre":"Sur iPhone ou iPad : appuyez sur ","ios.share":"Partager","ios.mid":" en bas de Safari, puis choisissez ","ios.addHome":"« Sur l'écran d'accueil »","ios.end":".","ios.close":"Compris",
+      "hero.badge":"Pour transporteurs indépendants et petites flottes","hero.h1a":"Le fret voyage,","hero.h1b":"vous suivez chaque kilomètre.","hero.sub":"Missions, lettre de voiture CMR, suivi GPS pour vos clients et factures automatiques : toute votre activité de transport dans une seule application, sur le téléphone comme au bureau.","hero.cta1":"Commencer l'essai gratuit","hero.cta2":"Voir les tarifs","hero.note":"30 jours gratuits · Sans carte bancaire · Sans engagement","hero.status":"En route","hero.labelPosition":"Position","hero.labelEta":"ETA","hero.labelDriver":"Chauffeur","hero.labelInvoice":"Facture","hero.invoiceAuto":"auto à la livraison",
+      "espaces.title":"Trois espaces, une seule plateforme","espaces.sub":"Chaque profil retrouve exactement ce dont il a besoin, rien de plus.","espaces.tabDriver":"App Chauffeur","espaces.tabClient":"Page Client","espaces.tabAdmin":"Bureau",
+      "driver.title":"Missions et CMR en poche","driver.body":"Le chauffeur voit ses missions, partage sa position pendant le trajet et fait signer le client sur l'écran à la livraison.","driver.li1":"Missions du jour et documents de fret","driver.li2":"Signature du destinataire sur le téléphone","driver.li3":"Partage de la position GPS en un bouton","driver.missionActive":"Mission active","driver.nextStep":"Prochaine étape","driver.customs":"Frontière La Jonquera · 06:30","driver.weight":"18,4 t · Remorque frigo",
+      "client.title":"Une page à votre nom pour vos clients","client.body":"Chaque transporteur reçoit sa page publique, à son logo et ses couleurs : vos clients y suivent leur livraison avec un code et vous envoient leurs demandes de devis.","client.li1":"Suivi de la livraison par code","client.li2":"Formulaire de devis relié à votre bureau","client.li3":"En français et en espagnol","client.trackingLabel":"Suivi expédition","client.statusOnTime":"En route — à l'heure","client.lastUpdate":"Dernière mise à jour","client.minutesAgo":"Il y a 6 min",
+      "admin.title":"Toute votre activité, une vue","admin.body":"Créez les missions, assignez vos chauffeurs, suivez le chiffre du mois et les factures impayées, sans tableur.","admin.li1":"Tableau de bord des livraisons en cours","admin.li2":"Factures numérotées avec IVA","admin.li3":"Invitation de vos chauffeurs par code","admin.k1":"En cours","admin.k2":"Livrées ce mois","admin.k3":"CA du mois (HT)","admin.k4":"Impayés",
+      "ecmr.docTitle":"LETTRE DE VOITURE — CMR","ecmr.sender":"1. Expéditeur","ecmr.recipient":"2. Destinataire","ecmr.carrier":"16. Transporteur","ecmr.yourCompany":"Votre entreprise","ecmr.signature":"24. Signature destinataire","ecmr.signed":"signée sur l'application","ecmr.title":"Lettre de voiture remplie toute seule","ecmr.body":"Les informations de la mission remplissent la CMR automatiquement. Imprimez-la ou enregistrez-la en PDF, avec la signature du destinataire une fois livrée.",
+      "suivi.title":"Géolocalisation pendant le trajet","suivi.body":"Le téléphone du chauffeur transmet sa position ; le client la voit sur votre page, sans vous appeler.",
+      "kit.title":"Tout ce qu'il faut pour rouler","kit.sub":"Inclus dans tous les abonnements.",
+      "kit.item1.title":"Missions & planning","kit.item1.desc":"Créez, assignez et suivez chaque transport, du chargement à la livraison.",
+      "kit.item2.title":"CMR automatique","kit.item2.desc":"Lettre de voiture préremplie, imprimable ou en PDF, avec signature.",
+      "kit.item3.title":"Suivi GPS client","kit.item3.desc":"Position du camion partagée avec votre client par un simple code.",
+      "kit.item4.title":"Facturation automatique","kit.item4.desc":"Facture numérotée créée à la livraison, avec IVA, suivi payé / impayé.",
+      "kit.item5.title":"Page client à vos couleurs","kit.item5.desc":"Votre logo, vos coordonnées, votre formulaire de devis.",
+      "kit.item6.title":"Devis entrants","kit.item6.desc":"Les demandes arrivent dans votre bureau et deviennent une mission en un clic.",
+      "kit.item7.title":"Équipe & chauffeurs","kit.item7.desc":"Invitez vos chauffeurs par code : chacun ne voit que ses missions.",
+      "kit.item8.title":"Bourse de fret","kit.item8.desc":"Publiez et trouvez des chargements pour éviter les retours à vide.",
+      "kit.soonLabel":"BIENTÔT","kit.soon":"Assistant IA, export comptable, application Android native.",
+      "fret.title":"Bourse de fret entre abonnés","fret.sub":"Les retours à vide deviennent des trajets rentables, partagés entre transporteurs Bouadigital.","fret.colTrajet":"Trajet","fret.colPoids":"Poids","fret.colDepart":"Départ","fret.colPrix":"Prix",
+      "pricing.title":"Un prix simple, sans surprise","pricing.sub":"Commencez gratuitement. Choisissez une formule seulement si l'outil vous fait gagner du temps.","pricing.trial.name":"Essai","pricing.trial.per":"pendant 30 jours","pricing.trial.f1":"Toutes les fonctionnalités","pricing.trial.f2":"Jusqu'à 3 chauffeurs","pricing.trial.f3":"Sans carte bancaire","pricing.per":"/ mois HT","pricing.cta":"Commencer","pricing.solo.name":"Solo","pricing.solo.f1":"Pour le transporteur autonome","pricing.solo.f2":"1 utilisateur, missions illimitées","pricing.solo.f3":"CMR, GPS, factures, page client","pricing.flotte.name":"Flotte","pricing.popular":"POPULAIRE","pricing.flotte.f1":"Jusqu'à 10 chauffeurs","pricing.flotte.f2":"Tout le contenu de Solo","pricing.flotte.f3":"Missions assignées par chauffeur","pricing.note":"Paiement sécurisé par carte via Stripe. Résiliable à tout moment depuis votre espace.",
+      "final.title":"Prêt en 5 minutes","final.body":"Créez votre compte, ajoutez votre première mission et envoyez le lien de suivi à votre client.","final.cta":"Créer mon compte gratuit",
+      "footer.tagline":"Le logiciel des transporteurs indépendants et petites flottes","footer.contact":"Nous contacter"
+    },
+    es: {
+      "nav.espaces":"Espacios","nav.kit":"Funciones","nav.fret":"Bolsa de carga","nav.tarifs":"Precios","nav.login":"Acceder","nav.cta":"Prueba gratis","nav.install":"Instalar",
+      "ios.title":"Instalar Bouadigital","ios.pre":"En iPhone o iPad: toca ","ios.share":"Compartir","ios.mid":" en la parte inferior de Safari y elige ","ios.addHome":"«Añadir a pantalla de inicio»","ios.end":".","ios.close":"Entendido",
+      "hero.badge":"Para transportistas autónomos y pequeñas flotas","hero.h1a":"La carga viaja,","hero.h1b":"tú sigues cada kilómetro.","hero.sub":"Servicios, carta de porte CMR, seguimiento GPS para tus clientes y facturas automáticas: toda tu actividad de transporte en una sola aplicación, en el móvil y en la oficina.","hero.cta1":"Empezar la prueba gratis","hero.cta2":"Ver precios","hero.note":"30 días gratis · Sin tarjeta · Sin permanencia","hero.status":"En ruta","hero.labelPosition":"Posición","hero.labelEta":"ETA","hero.labelDriver":"Conductor","hero.labelInvoice":"Factura","hero.invoiceAuto":"automática al entregar",
+      "espaces.title":"Tres espacios, una sola plataforma","espaces.sub":"Cada perfil encuentra exactamente lo que necesita, nada más.","espaces.tabDriver":"App Conductor","espaces.tabClient":"Página Cliente","espaces.tabAdmin":"Oficina",
+      "driver.title":"Servicios y CMR en el bolsillo","driver.body":"El conductor ve sus servicios, comparte su posición durante el trayecto y hace firmar al cliente en la pantalla al entregar.","driver.li1":"Servicios del día y documentos de carga","driver.li2":"Firma del destinatario en el móvil","driver.li3":"Compartir posición GPS con un botón","driver.missionActive":"Servicio activo","driver.nextStep":"Próxima etapa","driver.customs":"Frontera La Jonquera · 06:30","driver.weight":"18,4 t · Remolque frigorífico",
+      "client.title":"Una página con tu nombre para tus clientes","client.body":"Cada transportista tiene su página pública con su logo y colores: tus clientes siguen su envío con un código y te envían solicitudes de presupuesto.","client.li1":"Seguimiento del envío por código","client.li2":"Formulario de presupuesto conectado a tu oficina","client.li3":"En español y francés","client.trackingLabel":"Seguimiento de envío","client.statusOnTime":"En ruta — a tiempo","client.lastUpdate":"Última actualización","client.minutesAgo":"Hace 6 min",
+      "admin.title":"Toda tu actividad, una sola vista","admin.body":"Crea servicios, asigna conductores, sigue la facturación del mes y los impagos, sin hojas de cálculo.","admin.li1":"Panel de entregas en curso","admin.li2":"Facturas numeradas con IVA","admin.li3":"Invitación de conductores por código","admin.k1":"En curso","admin.k2":"Entregados este mes","admin.k3":"Facturación del mes","admin.k4":"Impagos",
+      "ecmr.docTitle":"CARTA DE PORTE — CMR","ecmr.sender":"1. Remitente","ecmr.recipient":"2. Destinatario","ecmr.carrier":"16. Transportista","ecmr.yourCompany":"Tu empresa","ecmr.signature":"24. Firma destinatario","ecmr.signed":"firmada en la aplicación","ecmr.title":"Carta de porte que se rellena sola","ecmr.body":"Los datos del servicio rellenan la CMR automáticamente. Imprímela o guárdala en PDF, con la firma del destinatario una vez entregada.",
+      "suivi.title":"Geolocalización durante el trayecto","suivi.body":"El móvil del conductor transmite su posición; el cliente la ve en tu página, sin llamarte.",
+      "kit.title":"Todo lo necesario para rodar","kit.sub":"Incluido en todas las suscripciones.",
+      "kit.item1.title":"Servicios y planificación","kit.item1.desc":"Crea, asigna y sigue cada transporte, de la carga a la entrega.",
+      "kit.item2.title":"CMR automática","kit.item2.desc":"Carta de porte prerrellenada, imprimible o en PDF, con firma.",
+      "kit.item3.title":"Seguimiento GPS para clientes","kit.item3.desc":"Posición del camión compartida con tu cliente mediante un código.",
+      "kit.item4.title":"Facturación automática","kit.item4.desc":"Factura numerada al entregar, con IVA, control de pagadas e impagadas.",
+      "kit.item5.title":"Página cliente con tu imagen","kit.item5.desc":"Tu logo, tus datos de contacto, tu formulario de presupuesto.",
+      "kit.item6.title":"Presupuestos entrantes","kit.item6.desc":"Las solicitudes llegan a tu oficina y se convierten en servicio con un clic.",
+      "kit.item7.title":"Equipo y conductores","kit.item7.desc":"Invita a tus conductores por código: cada uno ve solo sus servicios.",
+      "kit.item8.title":"Bolsa de carga","kit.item8.desc":"Publica y encuentra cargas para evitar los retornos en vacío.",
+      "kit.soonLabel":"PRÓXIMAMENTE","kit.soon":"Asistente IA, exportación contable, aplicación Android nativa.",
+      "fret.title":"Bolsa de carga entre suscriptores","fret.sub":"Los retornos en vacío se convierten en trayectos rentables, compartidos entre transportistas Bouadigital.","fret.colTrajet":"Ruta","fret.colPoids":"Peso","fret.colDepart":"Salida","fret.colPrix":"Precio",
+      "pricing.title":"Un precio sencillo, sin sorpresas","pricing.sub":"Empieza gratis. Elige un plan solo si la herramienta te ahorra tiempo.","pricing.trial.name":"Prueba","pricing.trial.per":"durante 30 días","pricing.trial.f1":"Todas las funciones","pricing.trial.f2":"Hasta 3 conductores","pricing.trial.f3":"Sin tarjeta","pricing.per":"/ mes + IVA","pricing.cta":"Empezar","pricing.solo.name":"Solo","pricing.solo.f1":"Para el transportista autónomo","pricing.solo.f2":"1 usuario, servicios ilimitados","pricing.solo.f3":"CMR, GPS, facturas, página cliente","pricing.flotte.name":"Flota","pricing.popular":"POPULAR","pricing.flotte.f1":"Hasta 10 conductores","pricing.flotte.f2":"Todo lo de Solo","pricing.flotte.f3":"Servicios asignados por conductor","pricing.note":"Pago seguro con tarjeta mediante Stripe. Cancela cuando quieras desde tu espacio.",
+      "final.title":"Listo en 5 minutos","final.body":"Crea tu cuenta, añade tu primer servicio y envía el enlace de seguimiento a tu cliente.","final.cta":"Crear mi cuenta gratis",
+      "footer.tagline":"El software de los transportistas autónomos y pequeñas flotas","footer.contact":"Contacto"
+    },
+    en: {
+      "nav.espaces":"Spaces","nav.kit":"Features","nav.fret":"Freight exchange","nav.tarifs":"Pricing","nav.login":"Log in","nav.cta":"Free trial","nav.install":"Install",
+      "ios.title":"Install Bouadigital","ios.pre":"On iPhone or iPad: tap ","ios.share":"Share","ios.mid":" at the bottom of Safari, then choose ","ios.addHome":"“Add to Home Screen”","ios.end":".","ios.close":"Got it",
+      "hero.badge":"For owner-operators and small fleets","hero.h1a":"Freight moves,","hero.h1b":"you track every kilometre.","hero.sub":"Jobs, CMR waybills, GPS tracking for your clients and automatic invoices: your whole haulage business in one app, on the phone and at the desk.","hero.cta1":"Start the free trial","hero.cta2":"See pricing","hero.note":"30 days free · No card required · No commitment","hero.status":"In transit","hero.labelPosition":"Position","hero.labelEta":"ETA","hero.labelDriver":"Driver","hero.labelInvoice":"Invoice","hero.invoiceAuto":"auto on delivery",
+      "espaces.title":"Three spaces, one platform","espaces.sub":"Each profile gets exactly what it needs, nothing more.","espaces.tabDriver":"Driver App","espaces.tabClient":"Client Page","espaces.tabAdmin":"Office",
+      "driver.title":"Jobs and CMR in your pocket","driver.body":"Drivers see their jobs, share their position on the road and collect the consignee's signature on screen at delivery.","driver.li1":"Today's jobs and freight documents","driver.li2":"Consignee signature on the phone","driver.li3":"One-tap GPS position sharing","driver.missionActive":"Active job","driver.nextStep":"Next stop","driver.customs":"La Jonquera border · 06:30","driver.weight":"18.4 t · Refrigerated trailer",
+      "client.title":"A page in your name for your clients","client.body":"Every haulier gets a public page with their logo and colours: clients track deliveries with a code and send you quote requests.","client.li1":"Delivery tracking by code","client.li2":"Quote form linked to your office","client.li3":"In French and Spanish","client.trackingLabel":"Shipment tracking","client.statusOnTime":"In transit — on time","client.lastUpdate":"Last update","client.minutesAgo":"6 min ago",
+      "admin.title":"Your whole business, one view","admin.body":"Create jobs, assign drivers, follow monthly revenue and unpaid invoices, without spreadsheets.","admin.li1":"Dashboard of ongoing deliveries","admin.li2":"Numbered invoices with VAT","admin.li3":"Invite drivers with a code","admin.k1":"Ongoing","admin.k2":"Delivered this month","admin.k3":"Monthly revenue","admin.k4":"Unpaid",
+      "ecmr.docTitle":"WAYBILL — CMR","ecmr.sender":"1. Sender","ecmr.recipient":"2. Consignee","ecmr.carrier":"16. Carrier","ecmr.yourCompany":"Your company","ecmr.signature":"24. Consignee signature","ecmr.signed":"signed in the app","ecmr.title":"A waybill that fills itself","ecmr.body":"Job details fill the CMR automatically. Print it or save it as PDF, with the consignee's signature once delivered.",
+      "suivi.title":"Live location on the road","suivi.body":"The driver's phone sends its position; the client sees it on your page without calling you.",
+      "kit.title":"Everything you need to roll","kit.sub":"Included in every plan.",
+      "kit.item1.title":"Jobs & planning","kit.item1.desc":"Create, assign and track every transport, from loading to delivery.",
+      "kit.item2.title":"Automatic CMR","kit.item2.desc":"Pre-filled waybill, printable or PDF, with signature.",
+      "kit.item3.title":"Client GPS tracking","kit.item3.desc":"Truck position shared with your client through a simple code.",
+      "kit.item4.title":"Automatic invoicing","kit.item4.desc":"Numbered invoice created on delivery, with VAT, paid / unpaid tracking.",
+      "kit.item5.title":"Branded client page","kit.item5.desc":"Your logo, your contact details, your quote form.",
+      "kit.item6.title":"Incoming quotes","kit.item6.desc":"Requests land in your office and become a job in one click.",
+      "kit.item7.title":"Team & drivers","kit.item7.desc":"Invite drivers with a code: each one only sees their own jobs.",
+      "kit.item8.title":"Freight exchange","kit.item8.desc":"Post and find loads to avoid empty return trips.",
+      "kit.soonLabel":"COMING SOON","kit.soon":"AI assistant, accounting export, native Android app.",
+      "fret.title":"Freight exchange between subscribers","fret.sub":"Empty returns become profitable trips, shared between Bouadigital hauliers.","fret.colTrajet":"Route","fret.colPoids":"Weight","fret.colDepart":"Departure","fret.colPrix":"Price",
+      "pricing.title":"Simple pricing, no surprises","pricing.sub":"Start free. Pick a plan only if the tool saves you time.","pricing.trial.name":"Trial","pricing.trial.per":"for 30 days","pricing.trial.f1":"All features","pricing.trial.f2":"Up to 3 drivers","pricing.trial.f3":"No card required","pricing.per":"/ month excl. VAT","pricing.cta":"Get started","pricing.solo.name":"Solo","pricing.solo.f1":"For the owner-operator","pricing.solo.f2":"1 user, unlimited jobs","pricing.solo.f3":"CMR, GPS, invoices, client page","pricing.flotte.name":"Fleet","pricing.popular":"POPULAR","pricing.flotte.f1":"Up to 10 drivers","pricing.flotte.f2":"Everything in Solo","pricing.flotte.f3":"Jobs assigned per driver","pricing.note":"Secure card payment via Stripe. Cancel anytime from your account.",
+      "final.title":"Ready in 5 minutes","final.body":"Create your account, add your first job and send the tracking link to your client.","final.cta":"Create my free account",
+      "footer.tagline":"Software for owner-operators and small fleets","footer.contact":"Contact us"
+    }
+  };
+
+  const LANGS = ["fr","es","en"];
+  const langBtn = document.getElementById("lang-toggle");
+
+  function applyLanguage(lang) {
+    const t = translations[lang] || translations.fr;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+    document.documentElement.lang = lang;
+    langBtn.dataset.lang = lang;
+    langBtn.textContent = lang.toUpperCase();
+    try { localStorage.setItem("bouadigital-lang", lang); } catch (e) {}
+  }
+
+  langBtn.addEventListener("click", () => {
+    const current = langBtn.dataset.lang || "fr";
+    applyLanguage(LANGS[(LANGS.indexOf(current) + 1) % LANGS.length]);
+  });
+
+  (function initLanguage() {
+    let saved = null;
+    try { saved = localStorage.getItem("bouadigital-lang"); } catch (e) {}
+    if (saved && LANGS.includes(saved)) { applyLanguage(saved); return; }
+    const browserLang = (navigator.language || "fr").slice(0, 2);
+    applyLanguage(LANGS.includes(browserLang) ? browserLang : "fr");
+  })();
+
+  const btns = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('[data-panel]');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => { b.classList.remove('border-amber','text-ink'); b.classList.add('border-transparent','text-dim'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('border-amber','text-ink'); btn.classList.remove('border-transparent','text-dim'); btn.setAttribute('aria-selected','true');
+      panels.forEach(p => p.classList.add('hidden'));
+      document.querySelector(`[data-panel="${btn.dataset.tab}"]`).classList.remove('hidden');
+    });
+  });
+</script>
+
+<!-- INSTALLATION PWA -->
+<script>
+  const installBtn = document.getElementById("install-btn");
+  const iosSheet = document.getElementById("ios-install-sheet");
+  let deferredPrompt = null;
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+
+  if (!isStandalone) {
+    if (isIOS) { installBtn.classList.remove("hidden"); installBtn.classList.add("inline-flex"); }
+    else {
+      window.addEventListener("beforeinstallprompt", e => {
+        e.preventDefault(); deferredPrompt = e;
+        installBtn.classList.remove("hidden"); installBtn.classList.add("inline-flex");
+      });
+    }
+  }
+  installBtn.addEventListener("click", async () => {
+    if (isIOS) { iosSheet.classList.remove("hidden"); return; }
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null;
+    installBtn.classList.add("hidden");
+  });
+  document.getElementById("ios-install-close").addEventListener("click", () => iosSheet.classList.add("hidden"));
+  iosSheet.addEventListener("click", e => { if (e.target === iosSheet) iosSheet.classList.add("hidden"); });
+  window.addEventListener("appinstalled", () => installBtn.classList.add("hidden"));
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+</script>
+</body>
+</html>
