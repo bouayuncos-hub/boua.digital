@@ -13,8 +13,22 @@ Tout se fait depuis les consoles web (Firebase, Stripe, GitHub, Vercel). Aucune 
 | `storage.rules` | Règles des fichiers : documents scannés visibles seulement par l'entreprise |
 | `api/deca.js` | Fonction serveur Node.js : génère le PDF DeCA avec QR code et l'enregistre |
 | `package.json`, `vercel.json` | Dépendances et réglages de la fonction serveur (Vercel les lit tout seul) |
+| `kit-digital.html` | Page Kit Digital (solutions éligibles, montants du Bono Digital) |
+| `manifest.json`, `sw.js`, `icons/` | Application installable : bouton « Installer », icône, fonctionnement hors ligne |
 
-Gardez vos `manifest.json` et `sw.js` actuels à côté. Le dossier `api/` doit garder ce nom et rester à la racine du dépôt.
+**Structure exacte à avoir sur GitHub** (les dossiers `api` et `icons` sont obligatoires) :
+
+```
+index.html  app.html  client.html  kit-digital.html
+manifest.json  sw.js  package.json  vercel.json
+api/deca.js
+icons/icon-192.png  icons/icon-512.png  icons/icon-maskable-512.png
+icons/apple-touch-icon.png  icons/favicon-32.png  icons/icon.svg
+```
+
+Pour envoyer les dossiers : décompressez le ZIP sur l'ordinateur, puis, sur GitHub → **Add file → Upload files**, glissez **tout le contenu** (fichiers ET dossiers) depuis Chrome ou Edge. Ou créez chaque fichier avec **Add file → Create new file** en tapant `api/deca.js`, `icons/…`.
+
+**Nouvelle version du site** : dans `sw.js`, changez la ligne `VERSION` (ex. `bd-2026-10-20-1`). Les utilisateurs verront « Une nouvelle version est disponible → Mettre à jour ».
 
 ---
 

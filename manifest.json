@@ -1,0 +1,42 @@
+{
+  "id": "/app",
+  "name": "Bouadigital — Logiciel des transporteurs",
+  "short_name": "Bouadigital",
+  "description": "Missions, DeCA avec QR, CMR, documents de voyage, suivi GPS, factures et bourse de fret pour transporteurs.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/app?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#0a1330",
+  "theme_color": "#0a1330",
+  "categories": ["business", "productivity", "navigation"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouvelle mission",
+      "short_name": "Mission",
+      "url": "/app?tab=missions&new=1",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Documents et DeCA",
+      "short_name": "DeCA",
+      "url": "/app?tab=documents",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Bourse de fret",
+      "short_name": "Fret",
+      "url": "/app?tab=fret",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

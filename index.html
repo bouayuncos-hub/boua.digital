@@ -8,13 +8,16 @@
 <meta property="og:title" content="Bouadigital - Le logiciel des transporteurs" />
 <meta property="og:description" content="Missions, e-CMR imprimable, suivi GPS client, facturation automatique et bourse de fret. Essai gratuit 30 jours, sans carte bancaire." />
 <meta property="og:type" content="website" />
+<meta property="og:image" content="/icons/icon-512.png" />
 <meta name="theme-color" content="#0a1330" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Bouadigital" />
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%231e3a8a'/%3E%3Cpath d='M120 180h180v140H120zM300 230l70 20v70h-70z' fill='%2360a5fa'/%3E%3Ccircle cx='180' cy='360' r='36' fill='%2310b981'/%3E%3Ccircle cx='340' cy='360' r='36' fill='%2310b981'/%3E%3C/svg%3E" />
+<link rel="manifest" href="/manifest.json" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -57,18 +60,20 @@
     </a>
     <nav class="hidden lg:flex items-center gap-6 text-sm text-dim">
       <a href="#espaces" data-i18n="nav.espaces" class="hover:text-ink transition-colors focus-ring">Espaces</a>
+      <a href="#deca" data-i18n="nav.deca" class="hover:text-ink transition-colors focus-ring">DeCA</a>
       <a href="#kit" data-i18n="nav.kit" class="hover:text-ink transition-colors focus-ring">Fonctionnalités</a>
       <a href="#fret" data-i18n="nav.fret" class="hover:text-ink transition-colors focus-ring">Bourse de fret</a>
+      <a href="#kit-digital" data-i18n="nav.kd" class="hover:text-ink transition-colors focus-ring">Kit Digital</a>
       <a href="#tarifs" data-i18n="nav.tarifs" class="hover:text-ink transition-colors focus-ring">Tarifs</a>
     </nav>
     <div class="flex items-center gap-3">
       <button id="lang-toggle" class="text-xs font-mono border border-line rounded-md px-2.5 py-1.5 text-dim hover:text-ink transition focus-ring" data-lang="fr">FR</button>
-      <button id="install-btn" class="hidden items-center gap-1.5 text-sm border border-line rounded-md px-3.5 py-2 text-ink hover:border-dim transition focus-ring">
+      <button id="install-btn" data-install class="hidden items-center gap-1.5 text-sm border border-amber text-amber rounded-md px-3.5 py-2 text-ink hover:border-dim transition focus-ring">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14"/></svg>
         <span data-i18n="nav.install">Installer</span>
       </button>
-      <a href="app.html" data-i18n="nav.login" class="hidden sm:inline text-sm text-dim hover:text-ink transition focus-ring">Connexion</a>
-      <a href="app.html?signup=1" data-i18n="nav.cta" class="text-sm font-medium bg-amber text-bg px-4 py-2 rounded-md hover:brightness-110 transition focus-ring">Essai gratuit</a>
+      <a href="/app" data-i18n="nav.login" class="hidden sm:inline text-sm text-dim hover:text-ink transition focus-ring">Connexion</a>
+      <a href="/app?signup=1" data-i18n="nav.cta" class="text-sm font-medium bg-amber text-bg px-4 py-2 rounded-md hover:brightness-110 transition focus-ring">Essai gratuit</a>
     </div>
   </div>
 </header>
@@ -95,7 +100,7 @@
       Missions, lettre de voiture e-CMR, suivi GPS pour vos clients et factures automatiques : toute votre activité de transport dans une seule application, sur le téléphone comme au bureau.
     </p>
     <div class="mt-8 flex flex-wrap items-center gap-4">
-      <a href="app.html?signup=1" data-i18n="hero.cta1" class="bg-amber text-bg font-medium px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">Commencer l'essai gratuit</a>
+      <a href="/app?signup=1" data-i18n="hero.cta1" class="bg-amber text-bg font-medium px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">Commencer l'essai gratuit</a>
       <a href="#tarifs" data-i18n="hero.cta2" class="text-ink border border-line px-6 py-3 rounded-md hover:border-dim transition focus-ring">Voir les tarifs</a>
     </div>
     <p class="mt-6 text-sm text-dim" data-i18n="hero.note">30 jours gratuits · Sans carte bancaire · Sans engagement</p>
@@ -198,6 +203,50 @@
   </div>
 </section>
 
+
+<!-- DeCA & DOCUMENTS -->
+<section id="deca" class="max-w-6xl mx-auto px-5 py-16 grid md:grid-cols-[1.1fr_1fr] gap-10 items-center">
+  <div>
+    <p class="text-xs font-mono text-amber mb-3" data-i18n="deca.badge">NOUVEAU</p>
+    <h2 class="text-2xl md:text-3xl font-semibold tracking-tight" data-i18n="deca.title">Le DeCA avec QR code, prêt pour le contrôle routier</h2>
+    <p class="text-dim mt-3 leading-relaxed max-w-md" data-i18n="deca.body">Générez le Documento de Control Administrativo en un clic à partir de la mission. Le PDF intègre un QR code : l'agent le scanne et télécharge l'original.</p>
+    <ul class="mt-5 space-y-3 text-sm">
+      <li class="flex gap-3"><span class="text-emerald mt-0.5">✓</span><span><strong class="text-ink" data-i18n="deca.f1t">QR plein écran, même sans réseau</strong> <span class="text-dim" data-i18n="deca.f1d">— fond blanc, écran maintenu allumé pour l'inspection.</span></span></li>
+      <li class="flex gap-3"><span class="text-emerald mt-0.5">✓</span><span><strong class="text-ink" data-i18n="deca.f2t">Documents scannés avec le téléphone</strong> <span class="text-dim" data-i18n="deca.f2d">— albaranes, CMR, tickets : photo ou PDF, rangés par trajet.</span></span></li>
+      <li class="flex gap-3"><span class="text-emerald mt-0.5">✓</span><span><strong class="text-ink" data-i18n="deca.f3t">Envoi en un geste</strong> <span class="text-dim" data-i18n="deca.f3d">— WhatsApp, SMS ou email, au client, au bureau ou à la gestoría.</span></span></li>
+      <li class="flex gap-3"><span class="text-emerald mt-0.5">✓</span><span><strong class="text-ink" data-i18n="deca.f4t">Toujours une solution</strong> <span class="text-dim" data-i18n="deca.f4d">— si le serveur ne répond pas, une version imprimable est créée sur place.</span></span></li>
+    </ul>
+  </div>
+  <div class="bg-white text-[#0a1330] rounded-xl overflow-hidden shadow-2xl max-w-sm w-full mx-auto">
+    <div class="bg-[#0a1330] text-white px-5 py-4 flex items-start justify-between gap-4">
+      <div>
+        <p class="text-xl font-bold">DeCA</p>
+        <p class="text-[10px] tracking-wide text-blue-200">DOCUMENTO DE CONTROL ADMINISTRATIVO</p>
+        <p class="mt-3 text-[10px] text-blue-200">N.º</p>
+        <p class="font-mono text-sm font-semibold">DECA-20261020-T4KR</p>
+      </div>
+      <div class="bg-white rounded-md p-1.5 shrink-0">
+        <svg width="76" height="76" viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true">
+          <path fill="#0a1330" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM22 0h7v7h-7zM23 1v5h5V1zM24 2h3v3h-3zM0 22h7v7H0zM1 23v5h5v-5zM2 24h3v3H2zM9 0h1v1H9zM11 0h2v2h-2zM14 1h1v3h-1zM16 0h3v1h-3zM9 3h2v1H9zM12 4h1v2h-1zM17 3h2v2h-2zM19 6h1v1h-1zM9 8h3v1H9zM14 7h2v2h-2zM18 8h2v1h-2zM22 9h3v1h-3zM26 8h2v2h-2zM0 9h2v1H0zM3 10h3v1H3zM8 11h1v3H8zM10 10h2v1h-2zM13 11h3v1h-3zM17 10h1v3h-1zM20 11h2v2h-2zM24 12h1v2h-1zM27 11h2v1h-2zM1 13h2v2H1zM5 12h1v2H5zM10 13h2v2h-2zM14 14h1v1h-1zM19 14h3v1h-3zM26 14h1v3h-1zM0 16h3v1H0zM4 17h2v1H4zM8 16h2v2H8zM12 16h1v3h-1zM15 17h3v1h-3zM20 16h1v2h-1zM23 17h2v1h-2zM9 20h3v1H9zM14 20h1v2h-1zM17 19h2v2h-2zM21 20h1v1h-1zM24 19h1v2h-1zM27 20h2v1h-2zM9 23h1v2H9zM11 25h3v1h-3zM15 23h2v1h-2zM19 22h1v3h-1zM22 23h3v1h-3zM26 24h1v2h-1zM8 27h2v2H8zM12 28h3v1h-3zM16 26h2v2h-2zM21 26h2v1h-2zM24 27h1v2h-1zM27 28h2v1h-2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="p-5 grid grid-cols-2 gap-3 text-xs">
+      <div class="bg-slate-100 rounded-md p-2.5"><p class="text-[9px] text-slate-500">5 · ORIGEN</p><p class="font-semibold">Yuncos (Toledo)</p></div>
+      <div class="bg-slate-100 rounded-md p-2.5"><p class="text-[9px] text-slate-500">6 · DESTINO</p><p class="font-semibold">Riba-roja (Valencia)</p></div>
+      <div class="bg-slate-100 rounded-md p-2.5"><p class="text-[9px] text-slate-500">9 · MATRÍCULA</p><p class="font-semibold font-mono">4821 LMZ</p></div>
+      <div class="bg-slate-100 rounded-md p-2.5"><p class="text-[9px] text-slate-500">8 · PESO</p><p class="font-semibold">21,6 t</p></div>
+    </div>
+    <div class="px-5 pb-5 flex gap-2 text-xs">
+      <span class="flex-1 text-center rounded-md bg-[#25D366] text-white font-semibold py-2">WhatsApp</span>
+      <span class="flex-1 text-center rounded-md bg-slate-200 font-semibold py-2">SMS</span>
+      <span class="flex-1 text-center rounded-md bg-slate-200 font-semibold py-2">Email</span>
+    </div>
+  </div>
+</section>
+
+<div class="road-line max-w-6xl mx-auto"></div>
+
 <!-- E-CMR -->
 <section id="ecmr" class="max-w-6xl mx-auto px-5 py-16 grid md:grid-cols-[1fr_1.1fr] gap-10 items-center">
   <div class="bg-panel border border-line rounded-xl p-6 font-mono text-xs leading-relaxed order-2 md:order-1">
@@ -251,8 +300,12 @@
     <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item4.title">Facturation automatique</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item4.desc">Facture numérotée créée à la livraison, avec IVA, suivi payé / impayé.</p></div>
     <div class="border-t border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item5.title">Page client à vos couleurs</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item5.desc">Votre logo, vos coordonnées, votre formulaire de devis.</p></div>
     <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item6.title">Devis entrants</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item6.desc">Les demandes arrivent dans votre bureau et deviennent une mission en un clic.</p></div>
-    <div class="border-t border-b border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item7.title">Équipe & chauffeurs</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item7.desc">Invitez vos chauffeurs par code : chacun ne voit que ses missions.</p></div>
-    <div class="border-t border-b border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item8.title">Bourse de fret</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item8.desc">Publiez et trouvez des chargements pour éviter les retours à vide.</p></div>
+    <div class="border-t border-line py-5 pr-8"><h3 class="font-medium" data-i18n="kit.item7.title">Équipe & chauffeurs</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item7.desc">Invitez vos chauffeurs par code : chacun ne voit que ses missions.</p></div>
+    <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium" data-i18n="kit.item8.title">Bourse de fret</h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item8.desc">Publiez et trouvez des chargements pour éviter les retours à vide.</p></div>
+    <div class="border-t border-line py-5 pr-8"><h3 class="font-medium"><span data-i18n="kit.item9.title">DeCA & documents de voyage</span> <span class="ml-1 text-[10px] font-mono text-amber align-middle">NEW</span></h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item9.desc">DeCA PDF avec QR code, scans rangés par trajet, présentés en un geste au contrôle.</p></div>
+    <div class="border-t border-line py-5 md:pl-8"><h3 class="font-medium"><span data-i18n="kit.item10.title">Envoi WhatsApp, SMS, email</span> <span class="ml-1 text-[10px] font-mono text-amber align-middle">NEW</span></h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item10.desc">Envoyez DeCA, documents et liens de suivi en un geste depuis l'application.</p></div>
+    <div class="border-t border-b border-line py-5 pr-8"><h3 class="font-medium"><span data-i18n="kit.item11.title">Fonctionne hors ligne</span> <span class="ml-1 text-[10px] font-mono text-amber align-middle">NEW</span></h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item11.desc">L'application s'ouvre sans réseau et synchronise vos modifications au retour.</p></div>
+    <div class="border-t border-b border-line py-5 md:pl-8"><h3 class="font-medium"><span data-i18n="kit.item12.title">Application installable</span> <span class="ml-1 text-[10px] font-mono text-amber align-middle">NEW</span></h3><p class="text-dim text-sm mt-1.5 leading-relaxed" data-i18n="kit.item12.desc">Icône sur l'écran d'accueil, plein écran, raccourcis vers vos missions et documents.</p></div>
   </div>
   <p class="mt-6 text-sm text-dim"><span class="text-amber font-mono text-xs mr-2" data-i18n="kit.soonLabel">BIENTÔT</span><span data-i18n="kit.soon">Assistant IA, export comptable, application Android native.</span></p>
 </section>
@@ -273,6 +326,33 @@
 
 <div class="road-line max-w-6xl mx-auto"></div>
 
+
+<!-- KIT DIGITAL -->
+<section id="kit-digital" class="max-w-6xl mx-auto px-5 py-16">
+  <div class="md:flex items-end justify-between gap-8">
+    <div>
+      <p class="text-xs font-mono text-amber mb-3">KIT DIGITAL · NEXTGENERATIONEU</p>
+      <h2 class="text-2xl md:text-3xl font-semibold tracking-tight" data-i18n="kd.title">Digitalisez-vous avec le Bono Digital</h2>
+      <p class="text-dim mt-3 max-w-xl leading-relaxed" data-i18n="kd.body">Le programme Kit Digital (Red.es, fonds européens) finance les outils numériques des indépendants et des PME selon leur nombre de salariés.</p>
+    </div>
+    <a href="/kit-digital" data-i18n="kd.more" class="inline-block mt-5 md:mt-0 shrink-0 text-sm border border-line rounded-md px-4 py-2.5 hover:border-dim transition focus-ring">Toutes les solutions éligibles →</a>
+  </div>
+  <div class="mt-8 grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div class="bg-panel border border-line rounded-xl p-4"><p class="text-xs text-dim" data-i18n="kd.s3">0–2 salariés</p><p class="text-2xl font-semibold mt-1">3 000 €</p></div>
+    <div class="bg-panel border border-line rounded-xl p-4"><p class="text-xs text-dim" data-i18n="kd.s2">3–9 salariés</p><p class="text-2xl font-semibold mt-1">6 000 €</p></div>
+    <div class="bg-panel border border-line rounded-xl p-4"><p class="text-xs text-dim" data-i18n="kd.s1">10–49 salariés</p><p class="text-2xl font-semibold mt-1">12 000 €</p></div>
+    <div class="bg-panel border border-line rounded-xl p-4"><p class="text-xs text-dim" data-i18n="kd.s4">50–99 salariés</p><p class="text-2xl font-semibold mt-1">25 000 €</p></div>
+    <div class="bg-panel border border-line rounded-xl p-4 col-span-2 md:col-span-1"><p class="text-xs text-dim" data-i18n="kd.s5">100–249 salariés</p><p class="text-2xl font-semibold mt-1">29 000 €</p></div>
+  </div>
+  <div class="mt-4 border border-amber/40 bg-amber/10 rounded-xl p-4 text-sm md:flex items-center justify-between gap-6">
+    <p><strong class="text-amber" data-i18n="kd.statusLabel">Statut :</strong> <span data-i18n="kd.status">convocatorias fermées depuis le 31/10/2025, programme prolongé jusqu'à épuisement des fonds. Préparez votre dossier pour la réouverture.</span></p>
+    <a href="mailto:bouayuncos@gmail.com?subject=Kit%20Digital%20-%20diagnostic" data-i18n="kd.cta" class="inline-block mt-3 md:mt-0 shrink-0 bg-amber text-bg font-medium text-sm px-4 py-2 rounded-md hover:brightness-110 transition focus-ring">Diagnostic gratuit</a>
+  </div>
+  <p class="mt-3 text-xs text-dim" data-i18n="kd.note">Montants des dernières convocatorias publiées par Red.es, donnés à titre indicatif.</p>
+</section>
+
+<div class="road-line max-w-6xl mx-auto"></div>
+
 <!-- TARIFS -->
 <section id="tarifs" class="max-w-6xl mx-auto px-5 py-16">
   <h2 class="text-2xl font-semibold tracking-tight" data-i18n="pricing.title">Un prix simple, sans surprise</h2>
@@ -286,7 +366,7 @@
         <li data-i18n="pricing.trial.f2">Jusqu'à 3 chauffeurs</li>
         <li data-i18n="pricing.trial.f3">Sans carte bancaire</li>
       </ul>
-      <a href="app.html?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm border border-line rounded-md py-2.5 hover:border-dim transition focus-ring">Commencer</a>
+      <a href="/app?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm border border-line rounded-md py-2.5 hover:border-dim transition focus-ring">Commencer</a>
     </div>
     <div class="bg-panel border border-line rounded-xl p-6 flex flex-col">
       <p class="font-medium" data-i18n="pricing.solo.name">Solo</p>
@@ -296,7 +376,7 @@
         <li data-i18n="pricing.solo.f2">1 utilisateur, missions illimitées</li>
         <li data-i18n="pricing.solo.f3">CMR, GPS, factures, page client</li>
       </ul>
-      <a href="app.html?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm border border-line rounded-md py-2.5 hover:border-dim transition focus-ring">Commencer</a>
+      <a href="/app?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm border border-line rounded-md py-2.5 hover:border-dim transition focus-ring">Commencer</a>
     </div>
     <div class="bg-brand border border-brand rounded-xl p-6 flex flex-col">
       <p class="font-medium"><span data-i18n="pricing.flotte.name">Flotte</span> <span class="ml-2 text-[11px] font-mono bg-amber text-bg px-2 py-0.5 rounded" data-i18n="pricing.popular">POPULAIRE</span></p>
@@ -306,10 +386,46 @@
         <li data-i18n="pricing.flotte.f2">Tout le contenu de Solo</li>
         <li data-i18n="pricing.flotte.f3">Missions assignées par chauffeur</li>
       </ul>
-      <a href="app.html?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm bg-amber text-bg font-medium rounded-md py-2.5 hover:brightness-110 transition focus-ring">Commencer</a>
+      <a href="/app?signup=1" data-i18n="pricing.cta" class="mt-6 text-center text-sm bg-amber text-bg font-medium rounded-md py-2.5 hover:brightness-110 transition focus-ring">Commencer</a>
     </div>
   </div>
   <p class="mt-4 text-xs text-dim" data-i18n="pricing.note">Paiement sécurisé par carte via Stripe. Résiliable à tout moment depuis votre espace.</p>
+</section>
+
+
+<!-- INSTALLER L'APPLICATION -->
+<section id="installer" class="max-w-6xl mx-auto px-5 py-16">
+  <div class="bg-panel border border-line rounded-2xl p-6 md:p-10 grid md:grid-cols-[auto_1fr] gap-8 items-center">
+    <img src="/icons/icon-512.png" alt="Bouadigital" width="120" height="120" class="w-24 h-24 md:w-32 md:h-32 rounded-3xl shadow-xl mx-auto md:mx-0" />
+    <div>
+      <h2 class="text-2xl md:text-3xl font-semibold tracking-tight" data-i18n="inst.title">Installez l'application sur votre téléphone</h2>
+      <p class="text-dim mt-3 max-w-xl leading-relaxed" data-i18n="inst.body">Une icône sur l'écran d'accueil, l'ouverture en plein écran et un fonctionnement même sans réseau, sans passer par un store.</p>
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <button data-install class="inline-flex items-center gap-2 bg-amber text-bg font-semibold px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14"/></svg>
+          <span data-i18n="inst.btn">Installer Bouadigital</span>
+        </button>
+        <a href="/app" data-i18n="inst.open" class="text-sm border border-line rounded-md px-5 py-3 hover:border-dim transition focus-ring">Ouvrir dans le navigateur</a>
+      </div>
+      <p id="inst-done" class="hidden mt-4 text-sm text-emerald" data-i18n="inst.done">✓ Application déjà installée sur cet appareil.</p>
+      <div class="mt-6 grid sm:grid-cols-2 gap-3 text-xs text-dim">
+        <p><strong class="text-ink">Android · Chrome</strong><br><span data-i18n="inst.android">Bouton « Installer », ou menu ⋮ → « Installer l'application ».</span></p>
+        <p><strong class="text-ink">iPhone · Safari</strong><br><span data-i18n="inst.ios">Bouton Partager → « Sur l'écran d'accueil ».</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="max-w-3xl mx-auto px-5 py-16">
+  <h2 class="text-2xl font-semibold tracking-tight" data-i18n="faq.title">Questions fréquentes</h2>
+  <div class="mt-6 divide-y divide-line border-y border-line">
+    <details class="group py-4"><summary class="cursor-pointer list-none flex justify-between gap-4 font-medium"><span data-i18n="faq.q1">Faut-il installer quelque chose ?</span><span class="text-dim group-open:rotate-45 transition">+</span></summary><p class="text-dim text-sm mt-2 leading-relaxed" data-i18n="faq.a1">Non. Bouadigital fonctionne dans le navigateur du téléphone ou de l'ordinateur. Vous pouvez aussi l'installer comme une application en un geste, sans store.</p></details>
+    <details class="group py-4"><summary class="cursor-pointer list-none flex justify-between gap-4 font-medium"><span data-i18n="faq.q2">Ça marche sans réseau, sur la route ?</span><span class="text-dim group-open:rotate-45 transition">+</span></summary><p class="text-dim text-sm mt-2 leading-relaxed" data-i18n="faq.a2">Oui pour l'essentiel : l'application s'ouvre, les missions déjà chargées et le QR du DeCA restent disponibles. Vos modifications sont envoyées dès le retour du réseau.</p></details>
+    <details class="group py-4"><summary class="cursor-pointer list-none flex justify-between gap-4 font-medium"><span data-i18n="faq.q3">Mes données sont-elles protégées ?</span><span class="text-dim group-open:rotate-45 transition">+</span></summary><p class="text-dim text-sm mt-2 leading-relaxed" data-i18n="faq.a3">Chaque entreprise a un espace séparé : personne d'autre ne voit vos missions, documents ou factures. Les données sont hébergées en Europe.</p></details>
+    <details class="group py-4"><summary class="cursor-pointer list-none flex justify-between gap-4 font-medium"><span data-i18n="faq.q4">Mes chauffeurs voient-ils tout ?</span><span class="text-dim group-open:rotate-45 transition">+</span></summary><p class="text-dim text-sm mt-2 leading-relaxed" data-i18n="faq.a4">Non. Un chauffeur invité par code ne voit que ses propres missions, documents et DeCA. Les factures et réglages restent réservés au responsable.</p></details>
+    <details class="group py-4"><summary class="cursor-pointer list-none flex justify-between gap-4 font-medium"><span data-i18n="faq.q5">Puis-je arrêter quand je veux ?</span><span class="text-dim group-open:rotate-45 transition">+</span></summary><p class="text-dim text-sm mt-2 leading-relaxed" data-i18n="faq.a5">Oui. Sans engagement : l'abonnement se résilie depuis votre espace, et vos données restent consultables.</p></details>
+  </div>
 </section>
 
 <!-- CTA FINAL -->
@@ -319,7 +435,7 @@
       <h2 class="text-2xl font-semibold tracking-tight" data-i18n="final.title">Prêt en 5 minutes</h2>
       <p class="text-blue-100/80 mt-2 max-w-md" data-i18n="final.body">Créez votre compte, ajoutez votre première mission et envoyez le lien de suivi à votre client.</p>
     </div>
-    <a href="app.html?signup=1" data-i18n="final.cta" class="mt-6 md:mt-0 inline-block shrink-0 bg-amber text-bg font-medium px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">Créer mon compte gratuit</a>
+    <a href="/app?signup=1" data-i18n="final.cta" class="mt-6 md:mt-0 inline-block shrink-0 bg-amber text-bg font-medium px-6 py-3 rounded-md hover:brightness-110 transition focus-ring">Créer mon compte gratuit</a>
   </div>
 </section>
 
@@ -332,7 +448,9 @@
       <p class="mt-1">Yuncos (Toledo) · bouayuncos@gmail.com</p>
     </div>
     <div class="flex flex-col items-start md:items-end gap-2">
-      <a href="app.html" data-i18n="nav.login" class="hover:text-ink transition-colors focus-ring">Connexion</a>
+      <a href="/app" data-i18n="nav.login" class="hover:text-ink transition-colors focus-ring">Connexion</a>
+      <a href="/kit-digital" data-i18n="footer.kd" class="hover:text-ink transition-colors focus-ring">Kit Digital</a>
+      <a href="#installer" data-i18n="footer.install" class="hover:text-ink transition-colors focus-ring">Installer l'application</a>
       <a href="mailto:bouayuncos@gmail.com" data-i18n="footer.contact" class="hover:text-ink transition-colors focus-ring">Nous contacter</a>
     </div>
   </div>
@@ -418,6 +536,11 @@
     }
   };
 
+  // Nouvelles sections
+  Object.assign(translations.fr, {"nav.deca": "DeCA", "nav.kd": "Kit Digital", "deca.badge": "NOUVEAU", "deca.title": "Le DeCA avec QR code, prêt pour le contrôle routier", "deca.body": "Générez le Documento de Control Administrativo en un clic à partir de la mission. Le PDF intègre un QR code : l'agent le scanne et télécharge l'original.", "deca.f1t": "QR plein écran, même sans réseau", "deca.f1d": "— fond blanc, écran maintenu allumé pour l'inspection.", "deca.f2t": "Documents scannés avec le téléphone", "deca.f2d": "— albaranes, CMR, tickets : photo ou PDF, rangés par trajet.", "deca.f3t": "Envoi en un geste", "deca.f3d": "— WhatsApp, SMS ou email, au client, au bureau ou à la gestoría.", "deca.f4t": "Toujours une solution", "deca.f4d": "— si le serveur ne répond pas, une version imprimable est créée sur place.", "kit.item9.title": "DeCA & documents de voyage", "kit.item9.desc": "DeCA PDF avec QR code, scans rangés par trajet, présentés en un geste au contrôle.", "kit.item10.title": "Envoi WhatsApp, SMS, email", "kit.item10.desc": "Envoyez DeCA, documents et liens de suivi en un geste depuis l'application.", "kit.item11.title": "Fonctionne hors ligne", "kit.item11.desc": "L'application s'ouvre sans réseau et synchronise vos modifications au retour.", "kit.item12.title": "Application installable", "kit.item12.desc": "Icône sur l'écran d'accueil, plein écran, raccourcis vers vos missions et documents.", "kd.title": "Digitalisez-vous avec le Bono Digital", "kd.body": "Le programme Kit Digital (Red.es, fonds européens) finance les outils numériques des indépendants et des PME selon leur nombre de salariés.", "kd.more": "Toutes les solutions éligibles →", "kd.s3": "0–2 salariés", "kd.s2": "3–9 salariés", "kd.s1": "10–49 salariés", "kd.s4": "50–99 salariés", "kd.s5": "100–249 salariés", "kd.statusLabel": "Statut :", "kd.status": "convocatorias fermées depuis le 31/10/2025, programme prolongé jusqu'à épuisement des fonds. Préparez votre dossier pour la réouverture.", "kd.cta": "Diagnostic gratuit", "kd.note": "Montants des dernières convocatorias publiées par Red.es, donnés à titre indicatif.", "inst.title": "Installez l'application sur votre téléphone", "inst.body": "Une icône sur l'écran d'accueil, l'ouverture en plein écran et un fonctionnement même sans réseau, sans passer par un store.", "inst.btn": "Installer Bouadigital", "inst.open": "Ouvrir dans le navigateur", "inst.done": "✓ Application déjà installée sur cet appareil.", "inst.android": "Bouton « Installer », ou menu ⋮ → « Installer l'application ».", "inst.ios": "Bouton Partager → « Sur l'écran d'accueil ».", "inst.manual": "Dans le menu du navigateur (⋮), choisissez « Installer l'application ».", "faq.title": "Questions fréquentes", "faq.q1": "Faut-il installer quelque chose ?", "faq.a1": "Non. Bouadigital fonctionne dans le navigateur du téléphone ou de l'ordinateur. Vous pouvez aussi l'installer comme une application en un geste, sans store.", "faq.q2": "Ça marche sans réseau, sur la route ?", "faq.a2": "Oui pour l'essentiel : l'application s'ouvre, les missions déjà chargées et le QR du DeCA restent disponibles. Vos modifications sont envoyées dès le retour du réseau.", "faq.q3": "Mes données sont-elles protégées ?", "faq.a3": "Chaque entreprise a un espace séparé : personne d'autre ne voit vos missions, documents ou factures. Les données sont hébergées en Europe.", "faq.q4": "Mes chauffeurs voient-ils tout ?", "faq.a4": "Non. Un chauffeur invité par code ne voit que ses propres missions, documents et DeCA. Les factures et réglages restent réservés au responsable.", "faq.q5": "Puis-je arrêter quand je veux ?", "faq.a5": "Oui. Sans engagement : l'abonnement se résilie depuis votre espace, et vos données restent consultables.", "footer.kd": "Kit Digital", "footer.install": "Installer l'application"});
+  Object.assign(translations.es, {"nav.deca": "DeCA", "nav.kd": "Kit Digital", "deca.badge": "NUEVO", "deca.title": "El DeCA con código QR, listo para la inspección", "deca.body": "Genera el Documento de Control Administrativo con un clic a partir del servicio. El PDF incluye un código QR: el agente lo escanea y descarga el original.", "deca.f1t": "QR a pantalla completa, incluso sin conexión", "deca.f1d": "— fondo blanco y pantalla siempre encendida para la inspección.", "deca.f2t": "Documentos escaneados con el móvil", "deca.f2d": "— albaranes, CMR, tickets: foto o PDF, ordenados por viaje.", "deca.f3t": "Envío con un toque", "deca.f3d": "— WhatsApp, SMS o email, al cliente, a la oficina o a la gestoría.", "deca.f4t": "Siempre una solución", "deca.f4d": "— si el servidor no responde, se crea al momento una versión imprimible.", "kit.item9.title": "DeCA y documentos de viaje", "kit.item9.desc": "DeCA en PDF con código QR y escaneos ordenados por viaje, listos para la inspección.", "kit.item10.title": "Envío por WhatsApp, SMS, email", "kit.item10.desc": "Envía DeCA, documentos y enlaces de seguimiento con un toque desde la aplicación.", "kit.item11.title": "Funciona sin conexión", "kit.item11.desc": "La aplicación se abre sin red y sincroniza tus cambios cuando vuelve.", "kit.item12.title": "Aplicación instalable", "kit.item12.desc": "Icono en la pantalla de inicio, pantalla completa y accesos directos a servicios y documentos.", "kd.title": "Digitalízate con el Bono Digital", "kd.body": "El programa Kit Digital (Red.es, fondos europeos) financia las herramientas digitales de autónomos y pymes según su número de empleados.", "kd.more": "Todas las soluciones subvencionables →", "kd.s3": "0–2 empleados", "kd.s2": "3–9 empleados", "kd.s1": "10–49 empleados", "kd.s4": "50–99 empleados", "kd.s5": "100–249 empleados", "kd.statusLabel": "Estado:", "kd.status": "convocatorias cerradas desde el 31/10/2025; el programa sigue vigente hasta agotar fondos. Prepara tu expediente para la reapertura.", "kd.cta": "Diagnóstico gratuito", "kd.note": "Importes de las últimas convocatorias publicadas por Red.es, a título orientativo.", "inst.title": "Instala la aplicación en tu móvil", "inst.body": "Un icono en la pantalla de inicio, apertura a pantalla completa y funcionamiento incluso sin conexión, sin pasar por ninguna tienda.", "inst.btn": "Instalar Bouadigital", "inst.open": "Abrir en el navegador", "inst.done": "✓ Aplicación ya instalada en este dispositivo.", "inst.android": "Botón «Instalar», o menú ⋮ → «Instalar aplicación».", "inst.ios": "Botón Compartir → «Añadir a pantalla de inicio».", "inst.manual": "En el menú del navegador (⋮), elige «Instalar aplicación».", "faq.title": "Preguntas frecuentes", "faq.q1": "¿Hay que instalar algo?", "faq.a1": "No. Bouadigital funciona en el navegador del móvil o del ordenador. También puedes instalarla como una aplicación con un toque, sin tienda.", "faq.q2": "¿Funciona sin conexión, en carretera?", "faq.a2": "Sí en lo esencial: la aplicación se abre, los servicios ya cargados y el QR del DeCA siguen disponibles. Tus cambios se envían al volver la conexión.", "faq.q3": "¿Mis datos están protegidos?", "faq.a3": "Cada empresa tiene un espacio separado: nadie más ve tus servicios, documentos o facturas. Los datos se alojan en Europa.", "faq.q4": "¿Mis conductores lo ven todo?", "faq.a4": "No. Un conductor invitado con código solo ve sus propios servicios, documentos y DeCA. Las facturas y los ajustes quedan reservados al responsable.", "faq.q5": "¿Puedo darme de baja cuando quiera?", "faq.a5": "Sí. Sin permanencia: la suscripción se cancela desde tu espacio y tus datos siguen disponibles para consulta.", "footer.kd": "Kit Digital", "footer.install": "Instalar la aplicación"});
+  Object.assign(translations.en, {"nav.deca": "DeCA", "nav.kd": "Kit Digital", "deca.badge": "NEW", "deca.title": "The DeCA with a QR code, ready for roadside checks", "deca.body": "Generate the Spanish Documento de Control Administrativo in one click from the job. The PDF carries a QR code: the inspector scans it and downloads the original.", "deca.f1t": "Full-screen QR, even offline", "deca.f1d": "— white background, screen kept on for the inspection.", "deca.f2t": "Documents scanned with your phone", "deca.f2d": "— delivery notes, CMR, receipts: photo or PDF, filed per trip.", "deca.f3t": "Send in one tap", "deca.f3d": "— WhatsApp, SMS or email, to the client, office or accountant.", "deca.f4t": "Always a way out", "deca.f4d": "— if the server doesn't respond, a printable version is created on the spot.", "kit.item9.title": "DeCA & travel documents", "kit.item9.desc": "DeCA PDF with QR code and scans filed per trip, ready for roadside checks.", "kit.item10.title": "Send by WhatsApp, SMS, email", "kit.item10.desc": "Send DeCA, documents and tracking links in one tap from the app.", "kit.item11.title": "Works offline", "kit.item11.desc": "The app opens without a connection and syncs your changes when it's back.", "kit.item12.title": "Installable app", "kit.item12.desc": "Home-screen icon, full screen, shortcuts to your jobs and documents.", "kd.title": "Go digital with the Bono Digital", "kd.body": "Spain's Kit Digital programme (Red.es, EU funds) pays for digital tools for freelancers and SMEs according to headcount.", "kd.more": "All eligible solutions →", "kd.s3": "0–2 employees", "kd.s2": "3–9 employees", "kd.s1": "10–49 employees", "kd.s4": "50–99 employees", "kd.s5": "100–249 employees", "kd.statusLabel": "Status:", "kd.status": "calls closed since 31/10/2025; the programme stays in force until funds run out. Get your file ready for the reopening.", "kd.cta": "Free assessment", "kd.note": "Amounts from the latest calls published by Red.es, for guidance only.", "inst.title": "Install the app on your phone", "inst.body": "A home-screen icon, full-screen launch and offline use, without going through an app store.", "inst.btn": "Install Bouadigital", "inst.open": "Open in the browser", "inst.done": "✓ App already installed on this device.", "inst.android": "\"Install\" button, or ⋮ menu → \"Install app\".", "inst.ios": "Share button → \"Add to Home Screen\".", "inst.manual": "In the browser menu (⋮), choose \"Install app\".", "faq.title": "Frequently asked questions", "faq.q1": "Do I need to install anything?", "faq.a1": "No. Bouadigital runs in the browser on phone or computer. You can also install it as an app in one tap, no store needed.", "faq.q2": "Does it work offline, on the road?", "faq.a2": "For the essentials, yes: the app opens, loaded jobs and the DeCA QR stay available. Your changes are sent as soon as the connection is back.", "faq.q3": "Is my data protected?", "faq.a3": "Each company has a separate space: nobody else sees your jobs, documents or invoices. Data is hosted in Europe.", "faq.q4": "Do my drivers see everything?", "faq.a4": "No. A driver invited by code only sees their own jobs, documents and DeCA. Invoices and settings stay with the manager.", "faq.q5": "Can I stop whenever I want?", "faq.a5": "Yes. No commitment: cancel from your account, and your data remains viewable.", "footer.kd": "Kit Digital", "footer.install": "Install the app"});
+
   const LANGS = ["fr","es","en"];
   const langBtn = document.getElementById("lang-toggle");
 
@@ -460,33 +583,45 @@
 
 <!-- INSTALLATION PWA -->
 <script>
-  const installBtn = document.getElementById("install-btn");
-  const iosSheet = document.getElementById("ios-install-sheet");
-  let deferredPrompt = null;
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  (function () {
+    const sheet = document.getElementById("ios-install-sheet");
+    const headerBtn = document.getElementById("install-btn");
+    const done = document.getElementById("inst-done");
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    let deferred = null;
+    const tr = k => { const l = document.documentElement.lang; return (translations[l] && translations[l][k]) || translations.fr[k]; };
 
-  if (!isStandalone) {
-    if (isIOS) { installBtn.classList.remove("hidden"); installBtn.classList.add("inline-flex"); }
-    else {
-      window.addEventListener("beforeinstallprompt", e => {
-        e.preventDefault(); deferredPrompt = e;
-        installBtn.classList.remove("hidden"); installBtn.classList.add("inline-flex");
-      });
+    function showHeader(on) { headerBtn.classList.toggle("hidden", !on); headerBtn.classList.toggle("inline-flex", on); }
+    function markInstalled() {
+      showHeader(false);
+      document.querySelectorAll("[data-install]").forEach(b => { if (b !== headerBtn) b.classList.add("hidden"); });
+      done.classList.remove("hidden");
     }
-  }
-  installBtn.addEventListener("click", async () => {
-    if (isIOS) { iosSheet.classList.remove("hidden"); return; }
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null;
-    installBtn.classList.add("hidden");
-  });
-  document.getElementById("ios-install-close").addEventListener("click", () => iosSheet.classList.add("hidden"));
-  iosSheet.addEventListener("click", e => { if (e.target === iosSheet) iosSheet.classList.add("hidden"); });
-  window.addEventListener("appinstalled", () => installBtn.classList.add("hidden"));
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
-  }
+    if (standalone) markInstalled();
+    else if (isIOS) showHeader(true);
+
+    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; if (!standalone) showHeader(true); });
+    window.addEventListener("appinstalled", () => { deferred = null; markInstalled(); });
+
+    document.querySelectorAll("[data-install]").forEach(btn => btn.addEventListener("click", async () => {
+      if (deferred) {
+        deferred.prompt();
+        const { outcome } = await deferred.userChoice;
+        deferred = null;
+        if (outcome === "accepted") markInstalled();
+        return;
+      }
+      if (isIOS) { sheet.classList.remove("hidden"); return; }
+      alert(tr("inst.manual"));
+    }));
+    document.getElementById("ios-install-close").addEventListener("click", () => sheet.classList.add("hidden"));
+    sheet.addEventListener("click", e => { if (e.target === sheet) sheet.classList.add("hidden"); });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+    }
+  })();
 </script>
 </body>
 </html>
