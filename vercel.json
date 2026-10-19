@@ -1,8 +1,0 @@
-{
-  "functions": {
-    "api/deca.js": {
-      "maxDuration": 30,
-      "includeFiles": "node_modules/pdfkit/js/data/**"
-    }
-  }
-}
